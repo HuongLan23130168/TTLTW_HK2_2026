@@ -1,0 +1,29 @@
+/* ================== MAIN CONTENT ================== */
+.main-content {
+    margin-left: 220px;
+    padding: 0;
+    height: calc(100vh - 70px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    line-height: 1.5;
+}
+
+.center-box {
+    text-align: center;
+    padding: 20px 30px;
+    background-color: #F8F4E1;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.center-box h1 {
+    color: #5A3E2B;
+    margin-bottom: 10px;
+    font-size: 60px;
+}
+
+.center-box h3 {
+    color: #74512D;
+    font-size: 35px;
+}
