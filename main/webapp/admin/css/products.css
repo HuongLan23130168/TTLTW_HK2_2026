@@ -1,0 +1,278 @@
+/* --- BIẾN MÀU --- */
+:root {
+    --primary-brown: #74512d;
+    --light-brown: #f1e6d1;
+    --text-brown: #5a3e2b;
+    --bg-hover: #fdf8f1;
+    --border-color: #f0e9e1;
+    --delete-color: #dc3545;
+}
+
+.main-content {
+    padding: 20px 30px;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.page-header h1 {
+    font-size: 32px;
+    color: var(--text-brown);
+    margin: 0;
+    font-weight: 700;
+}
+.btn-primary {
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    color: white;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    background-color: var(--primary-brown);
+}
+.btn-primary:hover {
+    background-color: #5e4023;
+    transform: translateY(-1px);
+}
+.custom-toast {
+    position: fixed;
+    bottom: 30px;
+    left: calc(50% + 125px);
+    transform: translateX(-50%);
+
+    width: 450px;
+    max-width: 90vw;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    z-index: 9999;
+
+    animation: slideUp 0.5s ease-out forwards, fadeOut 0.5s ease-in 2.5s forwards;
+}
+
+.toast-error {
+    background-color: #e74c3c;
+    border-bottom: 4px solid #c0392b;
+}
+.toast-success {
+    background-color: #2ecc71;
+    border-bottom: 4px solid #27ae60;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translate(-50%, 100%); opacity: 0;
+    }
+    to {
+        transform: translate(-50%, 0); opacity: 1;
+    }
+}
+@keyframes fadeOut {
+    from {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+    to {
+        transform: translate(-50%, 100%);
+        opacity: 0;
+        visibility: hidden; }
+}
+.table-container {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Segoe UI', sans-serif;
+    min-width: 1000px;
+}
+
+.data-table thead th {
+    background-color: var(--light-brown); color: var(--primary-brown);
+    font-weight: 700; font-size: 13px; text-transform: uppercase;
+    padding: 16px; text-align: left; white-space: nowrap;
+}
+
+.data-table tbody td {
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+    color: #333;
+    font-size: 14px;
+}
+.data-table tbody tr:hover {
+    background-color: var(--bg-hover);
+}
+.text-center {
+    text-align: center;
+}
+
+.product-cell {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.product-thumb {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid #eee;
+    flex-shrink: 0;
+}
+
+.product-info {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.product-info h4 {
+    margin: 0 0 4px 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-brown);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 220px;
+}
+
+.product-code {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 6px;
+    line-height: 1;
+}
+
+.tag-row {
+    display: flex;
+    gap: 5px;
+}
+
+.badge-custom {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: white;
+    display: inline-block;
+    font-weight: 600;
+
+}
+.badge-new {
+    background: #53b535;
+}
+.badge-best {
+    background: #fd7e14;
+}
+.badge-sale {
+    background: #b41717;
+}
+
+.price-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px; }
+.price-new {
+    font-weight: 700;
+    color: #d63031;
+    font-size: 15px; }
+.price-old {
+    font-size: 12px;
+    color: #999;
+    text-decoration: line-through;
+}
+
+.discount-pill {
+    background: #ffeaa7;
+    color: #d63031;
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-weight: bold;
+    display: inline-block;
+}
+
+
+.status-pill {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.status-pill.active {
+    background-color: #e6f4ea;
+    color: #1e7e34; }
+.status-pill.inactive {
+    background-color: #f1f3f4;
+    color: #5f6368; }
+.action-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    text-decoration: none;
+}
+.btn-edit-icon {
+    background-color: #fffaf4;
+    color: var(--primary-brown);
+    border: 1px solid var(--primary-brown);
+}
+.btn-edit-icon:hover {
+    background-color: var(--primary-brown);
+    color: white;
+}
+
+
+.btn-delete-icon {
+    background-color: var(--primary-brown);
+    color: white;
+    border: 1px solid var(--primary-brown);
+}
+.btn-delete-icon:hover {
+    background-color: #5e4023;
+    border-color: #5e4023;
+}
+
+.pagination { margin-top: 30px; display: flex; justify-content: center; gap: 8px; }
+.page-link {
+    width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+    border: 1px solid #ddd; border-radius: 50%; color: #555; text-decoration: none; background: #fff;
+}
+.page-link:hover, .page-link.active {
+    background: var(--primary-brown); color: #fff; border-color: var(--primary-brown);
+}
