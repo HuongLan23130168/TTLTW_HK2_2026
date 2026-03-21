@@ -1,0 +1,446 @@
+/* ===== MÀU CHỦ ĐẠO ===== */
+:root {
+    --brown-dark: #45120D;
+    --brown-medium: #6F4E37;
+    --beige-light: #FEFCF2;
+    --cream: #F8F4E1;
+    --gray-text: #4E4E4E;
+    --border-color: #A79277;
+    --accent: #ECB176;
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: var(--beige-light);
+    color: var(--gray-text);
+    line-height: 1.7;
+    margin: 0;
+    padding: 0;
+
+}
+
+/* ===== KHUNG CHÍNH ===== */
+.content {
+    max-width: 1200px;
+    margin: 60px auto;
+    padding: 40px;
+    background-color: var(--cream);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+    background: url('https://i.pinimg.com/736x/ec/8e/8f/ec8e8fc58023f703c049be9ccc8fc1af.jpg') center/cover no-repeat;
+}
+
+h1,
+h2 {
+    color: var(--brown-dark);
+    text-align: center;
+    margin-top: 0;
+}
+
+h1 {
+    font-size: 5em;
+    font-weight: 900;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    font-family: "Alike Angular", serif;
+    color: #3B2C1A;
+    text-shadow:
+        -1px -1px 2px rgba(255, 255, 255, 0.01),
+        1px -1px 2px rgba(255, 255, 255, 0.01),
+        -1px 1px 2px rgba(255, 255, 255, 0.01),
+        1px 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+/* ===== CĂN GIỮA CÁC PHẦN ===== */
+h2 {
+    text-align: center;
+    position: relative;
+
+    color: #6b1710;
+    font-size: 2.7em;
+    font-weight: 700;
+    cursor: pointer;
+    margin: 30px auto 30px;
+    text-shadow:
+        -1px -1px 2px rgba(255, 255, 255, 0.01),
+        1px -1px 2px rgba(255, 255, 255, 0.01),
+        -1px 1px 2px rgba(255, 255, 255, 0.01),
+        1px 1px 2px rgba(255, 255, 255, 1);
+}
+
+/* Hiệu ứng gạch cam dưới tiêu đề khi hover */
+h2::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 0px;
+    transform: translateX(-50%);
+    width: 0;
+    height: 4px;
+    background-color: var(--accent);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+}
+
+h2:hover::after {
+    width: 300px;
+}
+
+
+
+
+p {
+    font-size: 1.05em;
+    margin-bottom: 20px;
+    text-align: justify;
+}
+
+/* ===== KHUNG GIỚI THIỆU BAN ĐẦU ===== */
+.intro-section {
+    position: relative;
+    padding: 100px 60px;
+    text-align: center;
+    color: #3B2C1A;
+    overflow: hidden;
+}
+
+/* Ảnh nền phía sau */
+.intro-bg {
+    position: absolute;
+    inset: 0;
+    background: url('https://i.pinimg.com/1200x/eb/3e/3a/eb3e3a3298c4b6c99cb2917c5bd8d4ed.jpg') center/cover no-repeat;
+    z-index: 0;
+    border-radius: 10px;
+}
+
+.intro-bg .overlay {
+    inset: 0;
+    background: rgba(60, 40, 20, 0.55);
+    backdrop-filter: blur(1px);
+}
+
+/* Nội dung chữ */
+.intro-content {
+    position: relative;
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 10px;
+    border-radius: 18px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+    max-width: 950px;
+    margin: 25px auto 25px;
+}
+
+.intro-content h1 {
+    font-size: 2.8em;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    position: relative;
+    margin-bottom: 25px;
+}
+
+.intro-content h1::after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90px;
+    height: 4px;
+    background-color: #C67933;
+    border-radius: 2px;
+}
+
+.intro-content p {
+    font-size: 1.15em;
+    color: #4A4033;
+    line-height: 1.9;
+    max-width: 850px;
+    margin: 25px auto 25px;
+}
+
+/* Ảnh phía dưới */
+.img-placeholder {
+    margin: 60px auto;
+    text-align: center;
+}
+
+.img-placeholder img {
+    width: 90%;
+    max-width: 1200px;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+/*===== KHUNG TẦM NHÌN VÀ SỨ MỆNH ===== */
+.vision-mission {
+    position: relative;
+    background: url("https://i.pinimg.com/1200x/52/98/de/5298de6c6aa80698e8fefd27c1b225a9.jpg") center/cover no-repeat;
+    padding: 0 80px 100px;
+    /* tăng khoảng cách phía trên */
+    color: #fff;
+    margin-top: 40px;
+    /* đẩy toàn khối thấp xuống */
+    border-radius: 10px;
+}
+
+.vision-mission .overlay {
+    padding-top: 30px;
+    position: absolute;
+    inset: 0;
+    background: rgba(60, 40, 20, 0.55);
+    backdrop-filter: blur(1px);
+    border-radius: 10px;
+}
+
+.vision-container {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.vision-box,
+.mission-box {
+    background: rgba(50, 35, 20, 0.55);
+    border-radius: 20px;
+    padding: 40px 50px;
+    line-height: 1.8;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    margin-top: 60px;
+}
+
+.vision-box h2,
+.mission-box h2 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #F8F4E1;
+}
+
+.vision-box p,
+.mission-box p {
+    font-size: 16px;
+    color: #FEFCF2;
+    text-align: justify;
+}
+
+.mission-box {
+    align-self: flex-end;
+    max-width: 90%;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .vision-mission {
+        padding: 60px 30px;
+    }
+
+    .vision-box,
+    .mission-box {
+        padding: 25px;
+    }
+
+    .mission-box {
+        align-self: center;
+    }
+}
+
+.vision-box h3,
+.mission-box h3 {
+    position: relative;
+    display: inline-block;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 25px;
+    color: #F8F4E1;
+    transition: color 0.3s ease;
+}
+
+/* ===== KHUNG ẢNH PLACEHOLDER ===== */
+.img-placeholder {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    margin: 30px 0;
+}
+
+.img-placeholder img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+
+}
+
+
+/* ===== KHUNG GIÁ TRỊ ===== */
+.values {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 40px;
+    background: linear-gradient(to bottom, #FEFCF2 60%, #E7DFD4 100%);
+    padding: 60px 80px;
+    border-radius: 10px;
+}
+
+.value-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: left;
+    background-color: transparent;
+}
+
+.value-text {
+    margin-bottom: 20px;
+    padding: 0 10px;
+}
+
+.value-letter {
+    display: block;
+    font-size: 60px;
+    font-weight: 900;
+    color: #ECB176;
+    margin-bottom: 5px;
+    text-align: left;
+    line-height: 1;
+}
+
+.value-card h3 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #4E4E4E;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    display: flex;
+
+    gap: 4px;
+    text-align: center !important;
+}
+
+.value-letter {
+    font-size: 60px;
+    font-weight: 900;
+    color: #ECB176;
+    line-height: 1;
+
+}
+
+.value-suffix {
+    font-size: 50px;
+    font-weight: 700;
+    color: #4E4E4E;
+}
+
+.value-card p {
+    color: #4E4E4E;
+    line-height: 1.7;
+    text-align: justify;
+    font-size: 15px;
+}
+
+.value-img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 16px;
+    border: 1px solid #A79277;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* Hiệu ứng hover nhẹ */
+.value-card:hover .value-img {
+    transform: scale(1.02);
+    transition: 0.3s;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .values {
+        flex-direction: column;
+        padding: 40px;
+    }
+
+    .value-card {
+        text-align: center;
+    }
+
+    .value-letter {
+        text-align: center;
+    }
+
+    .value-card p {
+        text-align: center;
+    }
+}
+
+/* ===== KHUNG SLOGAN ===== */
+.slogan-box {
+    position: relative;
+    width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    margin: 40px 0;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.slogan-box img {
+    width: 100%;
+    height: 400px;
+    display: block;
+    object-fit: cover;
+    filter: brightness(65%);
+    transition: transform 0.6s ease;
+}
+
+
+/* Lớp phủ có độ mờ và slogan luôn hiển thị */
+.slogan-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.35);
+    color: #F8F4E1;
+    font-size: 1.6em;
+    font-weight: 600;
+    text-align: center;
+    padding: 25px 30px;
+    backdrop-filter: blur(2px);
+    opacity: 1;
+}
+
+.slogan-overlay p {
+    margin: 0;
+    line-height: 1.6;
+    max-width: 80%;
+}
+
+
+/* ===== PHẦN LỜI KẾT ===== */
+.closing {
+    text-align: center;
+    margin-top: 50px;
+    padding-top: 30px;
+    border-top: 1px solid var(--border-color);
+    font-size: 1.1em;
+    color: var(--brown-medium);
+    color: #F8F4E1;
+}
+/* ===== Cam kết ===== */
+.camket p {
+    font-size: 1.1em;
+    margin-bottom: 15px;
+    color: #F8F4E1;
+    text-align: center;
+
+}

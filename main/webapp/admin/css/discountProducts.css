@@ -1,0 +1,307 @@
+:root {
+    --primary-brown: #74512d;
+    --dark-brown: #5a3e2b;
+    --light-brown: #f1e6d1;
+    --bg-page: #f9f9f9;
+    --bg-white: #ffffff;
+    --border-color: #eee;
+    --input-border: #ddd;
+    --text-main: #333;
+    --text-light: #666;
+    --danger: #d63031;
+}
+
+body { background-color: var(--bg-page); }
+
+.main-content {
+    padding: 20px 40px;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* --- BREADCRUMB --- */
+.breadcrumb {
+    margin-bottom: 20px;
+    font-size: 14px;
+    color: var(--text-light);
+}
+.breadcrumb a {
+    text-decoration: none;
+    color: var(--text-main);
+}
+.breadcrumb a:hover {
+    color: var(--primary-brown);
+    text-decoration: underline;
+}
+.breadcrumb .current {
+    color: var(--primary-brown);
+    font-weight: 700;
+    margin-left: 5px;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+.page-header h1 {
+    color: #5a3e2b;
+    font-size: 26px;
+    margin: 0;
+    font-weight: 700;
+}
+
+.custom-toast {
+    position: fixed;
+    bottom: 30px;
+    left: calc(50% + 125px);
+    transform: translateX(-50%);
+
+    width: 450px;
+    max-width: 90vw;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    z-index: 9999;
+
+    animation: slideUp 0.5s ease-out forwards, fadeOut 0.5s ease-in 2.5s forwards;
+}
+.toast-error { background-color: #e74c3c; border-bottom: 4px solid #c0392b; }
+.toast-success { background-color: #2ecc71; border-bottom: 4px solid #27ae60; }
+
+@keyframes slideUp {
+    from { transform: translate(-50%, 100%); opacity: 0; }
+    to { transform: translate(-50%, 0); opacity: 1; }
+}
+@keyframes fadeOut {
+    from { transform: translate(-50%, 0); opacity: 1; }
+    to { transform: translate(-50%, 100%); opacity: 0; visibility: hidden; }
+}
+.btn-primary {
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    color: white;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    background-color: var(--primary-brown);
+}
+.btn-primary:hover {
+    background-color: #5e4023;
+    transform: translateY(-1px);
+}
+
+.table-container {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Segoe UI', sans-serif;
+    min-width: 900px;
+}
+.data-table thead th {
+    background-color: var(--light-brown);
+    color: var(--primary-brown);
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    padding: 16px;
+    text-align: left;
+    white-space: nowrap;
+}
+.data-table tbody td {
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+    color: #333;
+    font-size: 14px;
+}
+.data-table tbody tr:hover {
+    background-color: var(--bg-hover);
+}
+.text-center { text-align: center; }
+
+/* --- CÁC PHẦNRIÊNG CỦA KHUYẾN MÃI --- */
+.code-badge {
+    display: inline-block;
+    background: #eee;
+    color: #333;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-weight: bold;
+    font-size: 12px;
+    margin-top: 4px;
+    border: 1px dashed #ccc;
+}
+.discount-pill {
+    background: #ffeaa7;
+    color: #d63031;
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-weight: bold;
+    display: inline-block;
+}
+.date-column {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.4; }
+
+/* NÚT HÀNH ĐỘNG */
+.action-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+}
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    text-decoration: none;
+}
+/* Nút Sửa */
+.btn-edit-icon {
+    background-color: #fffaf4;
+    color: var(--primary-brown);
+    border: 1px solid var(--primary-brown);
+}
+.btn-edit-icon:hover {
+    background-color: var(--primary-brown);
+    color: white; }
+/* Nút Xóa */
+.btn-delete-icon {
+    background-color: var(--primary-brown);
+    color: white;
+    border: 1px solid var(--primary-brown);
+}
+.btn-delete-icon:hover {
+    background-color: #5e4023;
+    border-color: #5e4023; }
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
+    backdrop-filter: blur(2px);
+}
+.modal-content {
+    background-color: #fff;
+    margin: 5% auto;
+    padding: 25px;
+    border-radius: 12px;
+    width: 650px;
+    max-width: 90%;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    animation: slideDown 0.3s ease-out;
+}
+@keyframes slideDown {
+    from {
+        transform: translateY(-50px); opacity: 0;
+    }
+    to {
+        transform: translateY(0); opacity: 1;
+    }
+}
+.close-modal {
+    float: right;
+    font-size: 24px;
+    cursor: pointer;
+    color: #aaa;
+}
+.close-modal:hover {
+    color: #000;
+}
+.modal h2 {
+    margin-top: 0;
+    color: var(--text-brown);
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+.form-group {
+    margin-bottom: 15px;
+}
+.col-full {
+    grid-column: span 2;
+}
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-brown);
+}
+.scroll-box {
+    border: 1px solid #eee;
+    background: #fafafa;
+    padding: 10px;
+    border-radius: 6px;
+    max-height: 120px;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    cursor: pointer;
+}
+.form-actions {
+    text-align: right;
+    margin-top: 20px;
+}
+.btn-cancel {
+    background: #eee;
+    color: #5c4033;
+    margin-right: 10px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    border: #ffffff;
+}
+.btn-cancel:hover {
+    background: #ddd; }
