@@ -176,7 +176,7 @@
     .checkout-btn:hover {
         background: #74512D;
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
     .checkout-btn:active {
@@ -213,7 +213,7 @@
             <div class="address-group">
                 <input type="text" name="addressDetail" placeholder="Số nhà, tên đường*" required>
                 <input type="text" name="ward" placeholder="Phường/Xã*" required>
-                <input type="text" name="district" placeholder="Quận/Huyện*" >
+                <input type="text" name="district" placeholder="Quận/Huyện*">
                 <input type="text" name="city" placeholder="Tỉnh/Thành phố*" required>
                 <textarea name="note" placeholder="Ghi chú cho người giao hàng (nếu có)"></textarea>
             </div>
@@ -237,7 +237,7 @@
                            onclick="updateShipping(30000)">
                     <div class="option-content">
                         <p class="main-text">TIÊU CHUẨN</p>
-                        <p class="sub-text">30,000₫</p>
+                        <p class="sub-text">30.000₫</p>
                     </div>
                 </label>
                 <label class="option-box">
@@ -245,7 +245,7 @@
                            onclick="updateShipping(130000)">
                     <div class="option-content">
                         <p class="main-text">HỎA TỐC (TP.HCM)</p>
-                        <p class="sub-text">130,000₫</p>
+                        <p class="sub-text">130.000₫</p>
                     </div>
                 </label>
             </div>
@@ -294,7 +294,7 @@
 
             <div class="ship-total">
                 <p>Phí vận chuyển: </p>
-                <span id="shippingFeeDisplay">30,000₫</span>
+                <span id="shippingFeeDisplay"></span>
             </div>
 
             <hr class="divider">
@@ -305,30 +305,35 @@
                 </span>
             </div>
 
-            <form action="${pageContext.request.contextPath}/place-order" method="POST">
-                <button type="submit" class="checkout-btn">
-                    XÁC NHẬN ĐẶT HÀNG
-                </button>
-            </form>
+            <button type="submit" class="checkout-btn">
+                XÁC NHẬN ĐẶT HÀNG
+            </button>
         </div>
     </div>
 </form>
 
 <script>
-    const grandTotal = ${grandTotal};
+    const grandTotal = ${grandTotal != null ? grandTotal : 0};
+    document.addEventListener("DOMContentLoaded", function () {
+        updateShipping(30000);
+    });
+
+    function formatVND(number) {
+        return number.toLocaleString('vi-VN') + '₫';
+    }
 
     function updateShipping(fee) {
-        document.getElementById('shippingFeeDisplay').innerText = fee.toLocaleString() + '₫';
+        document.getElementById('shippingFeeDisplay').innerText = formatVND(fee);
 
         const methodName = (fee === 30000) ? "TIÊU CHUẨN" : "HỎA TỐC";
         document.getElementById('shippingMethodDisplay').innerText = methodName;
 
         const finalTotal = grandTotal + fee;
-        document.getElementById('finalTotalDisplay').innerText = finalTotal.toLocaleString() + '₫';
+        document.getElementById('finalTotalDisplay').innerText = formatVND(finalTotal);
     }
 
     document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
-        radio.addEventListener('change', function() {
+        radio.addEventListener('change', function () {
             const methodText = (this.value === "1") ? "COD" : "CHUYỂN KHOẢN";
             document.getElementById('paymentMethodDisplay').innerText = methodText;
         });

@@ -1,26 +1,31 @@
 console.clear();
 
-
 document.addEventListener('DOMContentLoaded', function() {
-  const labels = document.querySelectorAll('.filter-label');
-  labels.forEach(label => {
-    label.addEventListener('click', function() {
-      const options = this.nextElementSibling;
-      const icon = this.querySelector('.filter-icon i');
+  const filterGroups = document.querySelectorAll('.filter-group');
 
-      if (options.style.display === 'none' || options.style.display === '') {
-        options.style.display = 'block';
-        icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
+  filterGroups.forEach(group => {
+    const label = group.querySelector('.filter-label');
+    const options = group.querySelector('.options');
+    const icon = label.querySelector('.filter-icon i');
+
+    const checkedInput = options.querySelector('input:checked');
+
+    if (checkedInput) {
+      options.classList.add('show');
+      if (icon) icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
+    }
+
+    label.addEventListener('click', function() {
+      const isShowing = options.classList.contains('show');
+
+      if (!isShowing) {
+        options.classList.add('show');
+        if (icon) icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
       } else {
-        options.style.display = 'none';
-        icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
+        options.classList.remove('show');
+        if (icon) icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
       }
     });
-  });
-});
-document.querySelectorAll('.sidebar input').forEach(input => {
-  input.addEventListener('change', () => {
-    input.closest('form').submit();
   });
 });
 
