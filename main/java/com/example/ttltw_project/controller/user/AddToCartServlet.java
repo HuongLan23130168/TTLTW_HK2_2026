@@ -42,19 +42,21 @@ public class AddToCartServlet extends HttpServlet {
                 int quantity = Integer.parseInt(qtyRaw);
 
                 CartDAO dao = new CartDAO();
-                String result = dao.addToCart(user.getId(), variantId, quantity);
 
+                if ("buy".equals(redirectAction)) {
+
+                    session.setAttribute("buyNow_variantId", variantId);
+                    session.setAttribute("buyNow_quantity", quantity);
+
+                    response.sendRedirect(request.getContextPath() + "/checkout");
+                    return;
+                }
+
+                String result = dao.addToCart(user.getId(), variantId, quantity);
                 if ("Success".equals(result)) {
-                    if ("buy".equals(redirectAction)) {
-                        response.sendRedirect(request.getContextPath() + "/cart");
-                        return;
-                    }
                     int newTotal = dao.getTotalQuantityByUserId(user.getId());
                     session.setAttribute("totalQty", newTotal);
-
                     session.setAttribute("msg", "Đã thêm vào giỏ hàng!");
-                } else {
-                    session.setAttribute("error", result);
                 }
             }
         } catch (Exception e) {
