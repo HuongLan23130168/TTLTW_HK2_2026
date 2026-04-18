@@ -60,6 +60,8 @@
                     <p><strong>Email:</strong> <span>${user.email}</span></p>
                     <p><strong>Họ và tên:</strong> <span>${user.fullName}</span></p>
                     <p><strong>Số điện thoại:</strong> <span>${user.phone}</span></p>
+                    <p><strong>Giới tính:</strong> <span>${user.gender}</span></p>
+                    <p><strong>Ngày sinh:</strong> <span>${user.birth}</span></p>
                 </div>
                 <div class="info-right">
                     <div class="circle-avatar">${user.fullName.charAt(0)}</div>
@@ -90,6 +92,28 @@
                         <input type="text" name="phone" value="${user.phone}" required pattern="[0-9]{10,11}"
                                style="width: 100%; padding: 8px; border: 1px solid #A79277; border-radius: 5px;">
                     </div>
+
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label>Giới tính:</label>
+
+                        <select name="gender" style="width:100%; padding:8px; border:1px solid #A79277; border-radius:5px;">
+                            <option value="Nam" ${user.gender == 'Nam' ? 'selected' : ''}>Nam</option>
+                            <option value="Nữ" ${user.gender == 'Nữ' ? 'selected' : ''}>Nữ</option>
+                            <option value="Khác" ${user.gender == 'Khác' ? 'selected' : ''}>Khác</option>
+                        </select>
+
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label>Ngày sinh:</label>
+
+                        <input type="date"
+                               name="birth"
+                               value="${user.birth}"
+                               style="width:100%; padding:8px; border:1px solid #A79277; border-radius:5px;">
+                    </div>
+
+
 
                     <div style="text-align: right;">
                         <button type="button" class="cancel-btn" onclick="toggleProfileEdit()"
