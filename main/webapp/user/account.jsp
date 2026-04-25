@@ -48,7 +48,8 @@
             </li>
         </ul>
 
-        <div class="logout-btn"><a href="logout">Đăng xuất</a></div>
+        <a href="${pageContext.request.contextPath}/logout">Đăng xuất</a>
+
     </aside>
 
     <main class="account-details">
@@ -154,7 +155,7 @@
                                     Sửa
                                 </button>
 
-                                <a href="delete-address?id=${addr.id}" onclick="return confirm('Bạn có chắc muốn xóa địa chỉ này không?');"
+                                <a href="${pageContext.request.contextPath}/delete-address?id=${addr.id}" onclick="return confirm('Bạn có chắc muốn xóa địa chỉ này không?');"
                                    style="background: #d9534f; color: #fff; text-decoration: none; padding: 5px 10px; border-radius: 4px; font-size: 13.33px;">
                                     Xóa
                                 </a>
@@ -163,8 +164,9 @@
                     </c:forEach>
                     <div id="modal-edit-address" class="modal">
                         <div class="modal-content">
+
                             <h3 style="color: #6F4E37; margin-top: 0;">Cập nhật địa chỉ</h3>
-                            <form action="update-address" method="post">
+                            <form action="${pageContext.request.contextPath}/update-address" method="post">
                                 <input type="hidden" id="edit-id" name="id">
 
                                 <div style="margin-bottom: 15px;">
