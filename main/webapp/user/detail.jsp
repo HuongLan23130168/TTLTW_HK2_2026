@@ -8,9 +8,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${product.product_name}</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/frontend/css/header.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/frontend/css/footer.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/frontend/css/detail.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/header.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/footer.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/detail.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -43,7 +43,7 @@
 
         <div class="breadcrumb">
             <a href="${pageContext.request.contextPath}/home">Trang chủ</a> &#47;
-            <a href="${pageContext.request.contextPath}/list-product">Sản phẩm</a> &#47;
+            <a href="javascript:void(0)" onclick="goBackToList()">Sản phẩm</a> &#47;
             <span class="current">${product.product_name}</span>
         </div>
 
@@ -58,6 +58,7 @@
                             <c:set var="addedImages" value="${addedImages}|${v.image_url}"/>
                         </c:if>
                     </c:forEach>
+
                     <c:if test="${not empty product.images}">
                         <c:forEach var="img" items="${product.images}">
                             <c:if test="${!addedImages.contains(img.image_url)}">
@@ -202,6 +203,6 @@
 
 
 <jsp:include page="/user/footer.jsp"/>
-<script src="${pageContext.request.contextPath}/frontend/js/detail.js"></script>
+<script src="${pageContext.request.contextPath}/user/js/detail.js"></script>
 </body>
 </html>
