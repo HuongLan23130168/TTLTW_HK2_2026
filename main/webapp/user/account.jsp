@@ -197,34 +197,7 @@
             </div>
         </div>
 
-        <div id="modal-address" class="modal">
-            <div class="modal-content">
-                <h3 style="color: #6F4E37; margin-top: 0;">Thêm địa chỉ mới</h3>
-                <form action="add-address" method="post">
-                    <div style="margin-bottom: 15px;">
-                        <label style="display:block; font-weight:bold; margin-bottom:5px; color: #6F4E37;">Địa chỉ chi tiết:</label>
-                        <textarea name="address" rows="3" required placeholder="Số nhà, Tên đường, Phường/Xã, Quận/Huyện..."
-                                  style="width: 100%; padding: 10px; border: 1px solid #A79277; border-radius: 5px; font-family: inherit;"></textarea>
-                    </div>
-
-                    <div style="margin-bottom: 20px;">
-                        <input type="checkbox" id="isDefault" name="isDefault" value="1">
-                        <label for="isDefault" style="cursor: pointer; color: #333;">Đặt làm địa chỉ mặc định</label>
-                    </div>
-
-                    <div style="text-align: right;">
-                        <button type="button" onclick="closeAddressModal()"
-                                style="padding: 8px 15px; background: #eee; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">
-                            Đóng
-                        </button>
-                        <button type="submit"
-                                style="padding: 8px 15px; background: #6F4E37; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                            Lưu địa chỉ
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+     
         <div id="modal-address" class="modal">
             <div class="modal-content">
                 <h3 style="color: #6F4E37;">Thêm địa chỉ mới</h3>
