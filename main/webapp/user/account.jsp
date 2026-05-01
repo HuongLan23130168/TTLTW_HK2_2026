@@ -327,6 +327,14 @@
                                     </form>
 
                                 </c:if>
+
+                                    <c:set var="stt" value="${o.status.toLowerCase()}" />
+                                    <c:if test="${stt.contains('đã giao')}">
+                                        <button class="btn-return"
+                                                onclick="openReturnModal('${o.id}','${o.imageUrl}','${o.productName}')">
+                                            Hoàn trả đơn hàng </button>
+                                    </c:if>
+
                                 <a href="${pageContext.request.contextPath}/tracking?orderCode=${o.orderCode}"
                                    class="order-view-btn"
                                    style="text-decoration: none;">
