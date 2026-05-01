@@ -345,37 +345,5 @@
 <script src="${pageContext.request.contextPath}/user/js/account.js"></script>
 
 
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const pages = document.querySelectorAll(".page");
-        const menuItems = document.querySelectorAll(".menu-account li[data-target]");
-
-        function showPage(selector) {
-            pages.forEach((p) => p.classList.remove("active"));
-            const page = document.querySelector(selector);
-            if (page) page.classList.add("active");
-        }
-
-        // JS này chỉ xử lý việc click vào Sidebar
-        menuItems.forEach((item) => {
-            item.addEventListener("click", () => {
-                // UI: Đổi active trên menu
-                menuItems.forEach((i) => i.classList.remove("active"));
-                item.classList.add("active");
-
-                // UI: Hiện nội dung trang tương ứng
-                const target = item.getAttribute("data-target");
-                if (target) showPage(target);
-            });
-        });
-
-        // Submenu hover
-        document.querySelectorAll(".menu-account .has-submenu").forEach((parent) => {
-            parent.addEventListener("mouseenter", () => parent.classList.add("open"));
-            parent.addEventListener("mouseleave", () => parent.classList.remove("open"));
-        });
-    });
-</script>
-
 </body>
 </html>
