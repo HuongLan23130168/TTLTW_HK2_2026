@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/account.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/return.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/accountOrders.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/footer.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/changePass.css">
@@ -340,6 +341,42 @@
                                    style="text-decoration: none;">
                                     Xem chi tiết
                                 </a>
+                            </div>
+                        </div>
+
+                     <div id="modal-return" class="modal">
+
+                            <div class="modal-content">
+
+                                <form action="${pageContext.request.contextPath}/return-order"
+                                      method="post"
+                                      enctype="multipart/form-data">
+
+                                    <input type="hidden" name="orderId" id="returnOrderId">
+
+                                    <img id="returnProductImg" class="return-product-img">
+
+                                    <label>Lý do hoàn trả</label>
+                                    <textarea name="reason" required></textarea>
+
+                                    <label>Ảnh minh chứng</label>
+                                    <input type="file" name="returnImage" required>
+
+                                    <label>Số tài khoản nhận tiền</label>
+                                    <input type="text" name="bankAccount" required>
+
+                                    <div class="return-actions">
+
+                                        <button type="button" onclick="closeReturnModal()" class="return-cancel">
+                                            Hủy
+                                        </button>
+
+                                        <button type="submit" class="return-submit">
+                                            Gửi yêu cầu
+                                        </button>
+
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </c:forEach>
