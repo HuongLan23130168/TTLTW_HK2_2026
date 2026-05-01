@@ -103,3 +103,17 @@ public boolean createReturnOrder(int orderId, int userId, String reason, String 
     }
 
 }
+
+function openReturnModal(orderId,img,name){
+
+  document.getElementById("modal-return").style.display="block";
+
+  document.getElementById("returnOrderId").value = orderId;
+
+  document.getElementById("returnProductImg").src = img;
+
+}
+
+function closeReturnModal(){
+
+  document.getElementById("modal-return").style.display="none";
