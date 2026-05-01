@@ -334,5 +334,27 @@ public class OrderDAO {
                 return false;
             }
         }
+public boolean createReturnOrder(int orderId, int userId, String reason, String imageUrl, String bankAccount) {
+
+        String sql = "INSERT INTO return_orders(order_id,user_id,reason,image_url,bank_account,status) VALUES (?,?,?,?,?,'Chờ duyệt')";
+
+        try(Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)){
+
+            ps.setInt(1, orderId);
+            ps.setInt(2, userId);
+            ps.setString(3, reason);
+            ps.setString(4, imageUrl);
+            ps.setString(5, bankAccount);
+
+            return ps.executeUpdate() > 0;
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
 
     }

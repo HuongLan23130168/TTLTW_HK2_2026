@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/account.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/return.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/accountOrders.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/footer.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/changePass.css">
@@ -327,11 +328,55 @@
                                     </form>
 
                                 </c:if>
+
+                                    <c:set var="stt" value="${o.status.toLowerCase()}" />
+                                    <c:if test="${stt.contains('đã giao')}">
+                                        <button class="btn-return"
+                                                onclick="openReturnModal('${o.id}','${o.imageUrl}','${o.productName}')">
+                                            Hoàn trả đơn hàng </button>
+                                    </c:if>
+
                                 <a href="${pageContext.request.contextPath}/tracking?orderCode=${o.orderCode}"
                                    class="order-view-btn"
                                    style="text-decoration: none;">
                                     Xem chi tiết
                                 </a>
+                            </div>
+                        </div>
+
+                     <div id="modal-return" class="modal">
+
+                            <div class="modal-content">
+
+                                <form action="${pageContext.request.contextPath}/return-order"
+                                      method="post"
+                                      enctype="multipart/form-data">
+
+                                    <input type="hidden" name="orderId" id="returnOrderId">
+
+                                    <img id="returnProductImg" class="return-product-img">
+
+                                    <label>Lý do hoàn trả</label>
+                                    <textarea name="reason" required></textarea>
+
+                                    <label>Ảnh minh chứng</label>
+                                    <input type="file" name="returnImage" required>
+
+                                    <label>Số tài khoản nhận tiền</label>
+                                    <input type="text" name="bankAccount" required>
+
+                                    <div class="return-actions">
+
+                                        <button type="button" onclick="closeReturnModal()" class="return-cancel">
+                                            Hủy
+                                        </button>
+
+                                        <button type="submit" class="return-submit">
+                                            Gửi yêu cầu
+                                        </button>
+
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </c:forEach>
@@ -344,38 +389,6 @@
 <jsp:include page="/user/footer.jsp"/>
 <script src="${pageContext.request.contextPath}/user/js/account.js"></script>
 
-
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const pages = document.querySelectorAll(".page");
-        const menuItems = document.querySelectorAll(".menu-account li[data-target]");
-
-        function showPage(selector) {
-            pages.forEach((p) => p.classList.remove("active"));
-            const page = document.querySelector(selector);
-            if (page) page.classList.add("active");
-        }
-
-        // JS này chỉ xử lý việc click vào Sidebar
-        menuItems.forEach((item) => {
-            item.addEventListener("click", () => {
-                // UI: Đổi active trên menu
-                menuItems.forEach((i) => i.classList.remove("active"));
-                item.classList.add("active");
-
-                // UI: Hiện nội dung trang tương ứng
-                const target = item.getAttribute("data-target");
-                if (target) showPage(target);
-            });
-        });
-
-        // Submenu hover
-        document.querySelectorAll(".menu-account .has-submenu").forEach((parent) => {
-            parent.addEventListener("mouseenter", () => parent.classList.add("open"));
-            parent.addEventListener("mouseleave", () => parent.classList.remove("open"));
-        });
-    });
-</script>
 
 </body>
 </html>
