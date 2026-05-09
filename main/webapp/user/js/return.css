@@ -1,0 +1,74 @@
+.modal{
+    display:none;
+    position:fixed;
+    z-index:1000;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.5);
+}
+
+.modal-content{
+    background:#fff;
+    width:420px;
+    margin:80px auto;
+    padding:25px;
+    border-radius:8px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.return-product-img{
+    width:100%;
+    height:180px;
+    object-fit:cover;
+    border-radius:6px;
+    margin-bottom:10px;
+}
+
+textarea{
+    width:100%;
+    height:90px;
+    padding:8px;
+    border:1px solid #ccc;
+    border-radius:6px;
+    resize:none;
+}
+
+input[type="file"],
+input[type="text"]{
+    width:100%;
+    padding:8px;
+    border:1px solid #ccc;
+    border-radius:6px;
+}
+
+.return-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    margin-top:10px;
+}
+
+.return-cancel{
+    background:#ccc;
+    border:none;
+    padding:8px 14px;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+.return-submit{
+    background:#e53935;
+    color:white;
+    border:none;
+    padding:8px 14px;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+.return-submit:hover{
+    background:#c62828;
+}
