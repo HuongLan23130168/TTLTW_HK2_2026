@@ -40,7 +40,7 @@
     background: #fff;
     border-radius: 12px;
     padding: 20px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
 
 .sidebar h3 {
@@ -84,10 +84,20 @@
     border-bottom: none;
     padding-bottom: 0;
 }
+
 .filter-group .options div {
     white-space: normal;
     word-break: break-word;
 }
+
+.filter-group .options {
+    display: none;
+}
+
+.filter-group .options.show {
+    display: block !important;
+}
+
 .filter-btn {
     display: block;
     margin: 15px auto 0;
@@ -96,6 +106,29 @@
     border-radius: 8px;
     padding: 8px 20px;
     cursor: pointer;
+}
+
+.no-product {
+    text-align: center;
+    padding: 60px 20px;
+    color: #777;
+}
+
+.no-product i {
+    font-size: 50px;
+    color: #ccc;
+    margin-bottom: 15px;
+}
+
+.no-product h3 {
+    font-size: 20px;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.no-product p {
+    font-size: 14px;
+    color: #888;
 }
 
 #productList {

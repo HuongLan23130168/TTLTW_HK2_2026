@@ -53,33 +53,43 @@ body { background-color: var(--bg-page); }
 
 .custom-toast {
     position: fixed;
-    bottom: 30px;
+    top: 50%;
     left: calc(50% + 125px);
-    transform: translateX(-50%);
-
-    width: 450px;
+    transform: translate(-50%, -50%);
+    width: 360px;
     max-width: 90vw;
-    padding: 15px 20px;
-    border-radius: 8px;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
-    color: #fff;
-    font-size: 16px;
-    font-weight: bold;
+    padding: 35px 25px;
+    border-radius: 16px;
+    background-color: rgba(241, 230, 209, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(116, 81, 45, 0.15);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    color: #5a3e2b;
+    font-size: 17px;
+    font-weight: 600;
     text-align: center;
-    z-index: 9999;
-
-    animation: slideUp 0.5s ease-out forwards, fadeOut 0.5s ease-in 2.5s forwards;
+    z-index: 99999;
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, fadeOutCenter 0.5s ease-in 2.5s forwards;
 }
-.toast-error { background-color: #e74c3c; border-bottom: 4px solid #c0392b; }
-.toast-success { background-color: #2ecc71; border-bottom: 4px solid #27ae60; }
 
-@keyframes slideUp {
-    from { transform: translate(-50%, 100%); opacity: 0; }
-    to { transform: translate(-50%, 0); opacity: 1; }
+.custom-toast i {
+    display: block;
+    font-size: 50px;
+    margin-bottom: 16px;
 }
-@keyframes fadeOut {
-    from { transform: translate(-50%, 0); opacity: 1; }
-    to { transform: translate(-50%, 100%); opacity: 0; visibility: hidden; }
+
+.toast-success i { color: #2ecc71; }
+.toast-error i { color: #e74c3c; }
+
+@keyframes popIn {
+    0% { transform: translate(-50%, -50%) scale(0.7); opacity: 0; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+@keyframes fadeOutCenter {
+    0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(0.9); opacity: 0; visibility: hidden; }
 }
 .btn-primary {
     text-decoration: none;
@@ -295,13 +305,19 @@ body { background-color: var(--bg-page); }
     margin-top: 20px;
 }
 .btn-cancel {
-    background: #eee;
-    color: #5c4033;
-    margin-right: 10px;
+    text-decoration: none;
     padding: 10px 20px;
-    border-radius: 8px;
+    border-radius: 6px;
+    color: white;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
     font-weight: 600;
-    border: #ffffff;
+    border: none;
+    cursor: pointer;
+    background-color: #ff2d2d;
 }
 .btn-cancel:hover {
     background: #ddd; }

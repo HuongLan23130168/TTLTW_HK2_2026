@@ -221,7 +221,7 @@
                                  onerror="this.src='https://via.placeholder.com/80'">
 
                             <div class="item-info">
-                                <h4><a href="${pageContext.request.contextPath}/detail?id=${item.variantId}"
+                                <h4><a href="${pageContext.request.contextPath}/detail-product?id=${item.variantId}"
                                        style="text-decoration: none; color: #333;">${item.productName}</a></h4>
 
                                 <div class="color">

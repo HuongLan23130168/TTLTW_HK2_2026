@@ -2,6 +2,9 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
+<fmt:setLocale value="vi_VN"/>
+
+
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -176,7 +179,7 @@
     .checkout-btn:hover {
         background: #74512D;
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
     .checkout-btn:active {
@@ -199,22 +202,52 @@
     <div class="step"><i class="fa fa-check-circle"></i> Hoàn tất</div>
 </div>
 
-<form action="${pageContext.request.contextPath}/place-order" method="POST">
+<form id="checkoutForm"
+      action="${pageContext.request.contextPath}/place-order"
+      method="POST">
     <div class="checkout-container">
         <div class="checkout-left">
             <h4>THÔNG TIN NGƯỜI NHẬN</h4>
             <div class="form-group">
-                <input type="text" name="fullName" placeholder="Họ & tên*" required>
-                <input type="tel" name="phone" placeholder="Số điện thoại*" required>
-                <input type="email" name="email" value="${sessionScope.acc.email}" required>
+                <input type="text" id="fullName" name="fullName" placeholder="Họ & tên*" required>
+                <small class="error-message" id="fullNameError"></small>
+
+                <input type="tel" id="phone" name="phone" placeholder="Số điện thoại*" required>
+                <small class="error-message" id="phoneError"></small>
+
+                <input type="email" id="email" name="email" value="${sessionScope.acc.email}" required>
+                <small class="error-message"></small>
             </div>
 
             <h4>ĐỊA CHỈ NHẬN HÀNG</h4>
             <div class="address-group">
-                <input type="text" name="addressDetail" placeholder="Số nhà, tên đường*" required>
-                <input type="text" name="ward" placeholder="Phường/Xã*" required>
-                <input type="text" name="district" placeholder="Quận/Huyện*" >
-                <input type="text" name="city" placeholder="Tỉnh/Thành phố*" required>
+                <input type="text"
+                       id="addressDetail"
+                       name="addressDetail"
+                       placeholder="Số nhà, tên đường*"
+                       required>
+                <small class="error-message"></small>
+
+                <select id="province" class="form-control" required>
+                    <option value="">Chọn Tỉnh/Thành</option>
+                </select>
+                <small class="error-message"></small>
+
+                <select id="district" class="form-control" required>
+                    <option value="">Chọn Quận/Huyện</option>
+                </select>
+                <small class="error-message"></small>
+
+                <select id="ward" class="form-control" required>
+                    <option value="">Chọn Phường/Xã</option>
+                </select>
+                <small class="error-message"></small>
+
+                <input type="hidden" name="cityName" id="cityName">
+                <input type="hidden" name="districtName" id="districtName">
+                <input type="hidden" name="wardName" id="wardName">
+                <input type="hidden" name="shippingFeeVal" id="shippingFeeVal" value="0">
+
                 <textarea name="note" placeholder="Ghi chú cho người giao hàng (nếu có)"></textarea>
             </div>
 
@@ -232,20 +265,18 @@
 
             <h4 class="section-title">HÌNH THỨC VẬN CHUYỂN</h4>
             <div class="option-grid">
-                <label class="option-box">
-                    <input type="radio" name="shippingType" value="tiêu chuẩn" checked
-                           onclick="updateShipping(30000)">
+                <label class="option-box" id="standardShipLabel">
+                    <input type="radio" name="shippingType" value="tiêu chuẩn" checked>
                     <div class="option-content">
                         <p class="main-text">TIÊU CHUẨN</p>
-                        <p class="sub-text">30,000₫</p>
+                        <p class="sub-text" id="standardShipPrice">Đang tính...</p>
                     </div>
                 </label>
-                <label class="option-box">
-                    <input type="radio" name="shippingType" value="hỏa tốc"
-                           onclick="updateShipping(130000)">
+                <label class="option-box" id="expressShipLabel">
+                    <input type="radio" name="shippingType" value="hỏa tốc">
                     <div class="option-content">
-                        <p class="main-text">HỎA TỐC (TP.HCM)</p>
-                        <p class="sub-text">130,000₫</p>
+                        <p class="main-text">HỎA TỐC</p>
+                        <p class="sub-text" id="expressShipPrice">Đang tính...</p>
                     </div>
                 </label>
             </div>
@@ -289,54 +320,34 @@
             <hr class="divider">
             <div class="total-line">
                 <p>Tiền sản phẩm: </p>
-                <span><fmt:formatNumber value="${grandTotal}" pattern="#,###"/>₫</span>
+                <span>
+                    <fmt:formatNumber value="${grandTotal}" pattern="#,###"/>₫
+                </span>
             </div>
 
             <div class="ship-total">
                 <p>Phí vận chuyển: </p>
-                <span id="shippingFeeDisplay">30,000₫</span>
+                <span id="shippingFeeDisplay">Chọn địa chỉ để tính phí</span>
             </div>
 
             <hr class="divider">
             <div class="final-total">
                 <p>TỔNG THANH TOÁN</p>
                 <span id="finalTotalDisplay">
-                    <fmt:formatNumber value="${grandTotal + 30000}" pattern="#,###"/>₫
+                    <fmt:formatNumber value="${grandTotal}" pattern="#,###"/>₫
                 </span>
             </div>
 
-            <form action="${pageContext.request.contextPath}/place-order" method="POST">
-                <button type="submit" class="checkout-btn">
-                    XÁC NHẬN ĐẶT HÀNG
-                </button>
-            </form>
+            <button type="submit" class="checkout-btn">
+                XÁC NHẬN ĐẶT HÀNG
+            </button>
         </div>
     </div>
 </form>
 
-<script>
-    const grandTotal = ${grandTotal};
-
-    function updateShipping(fee) {
-        document.getElementById('shippingFeeDisplay').innerText = fee.toLocaleString() + '₫';
-
-        const methodName = (fee === 30000) ? "TIÊU CHUẨN" : "HỎA TỐC";
-        document.getElementById('shippingMethodDisplay').innerText = methodName;
-
-        const finalTotal = grandTotal + fee;
-        document.getElementById('finalTotalDisplay').innerText = finalTotal.toLocaleString() + '₫';
-    }
-
-    document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
-        radio.addEventListener('change', function() {
-            const methodText = (this.value === "1") ? "COD" : "CHUYỂN KHOẢN";
-            document.getElementById('paymentMethodDisplay').innerText = methodText;
-        });
-    });
-</script>
+<script src="${pageContext.request.contextPath}/user/js/pay.js"></script>
 
 <jsp:include page="/user/footer.jsp"/>
-
 </body>
 
 </html>

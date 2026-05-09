@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Noble Loft Theory</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/frontend/css/header.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/header.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
@@ -29,17 +29,21 @@
                 </a>
             </span>
         </div>
+        <form action="${pageContext.request.contextPath}/list-product" method="GET" class="search-box">
+            <i class="fa fa-search"></i>
+            <input type="text" name="keyword" placeholder="Tìm kiếm sản phẩm" value="${param.keyword}" required>
+        </form>
 
         <div class="header-right">
-            <a href="${pageContext.request.contextPath}/frontend/tracking.jsp"
+            <a href="${pageContext.request.contextPath}/user/tracking.jsp"
                class="${fn:contains(pageContext.request.requestURI, 'tracking.jsp') ? 'active' : ''}">
                 Tra cứu đơn hàng
             </a>
-            <a href="${pageContext.request.contextPath}/frontend/gioithieu.jsp"
+            <a href="${pageContext.request.contextPath}/user/gioithieu.jsp"
                class="${fn:contains(pageContext.request.requestURI, 'gioithieu.jsp') ? 'active' : ''}">
                 Giới thiệu
             </a>
-            <a href="${pageContext.request.contextPath}/frontend/contact.jsp"
+            <a href="${pageContext.request.contextPath}/user/contact.jsp"
                class="contact ${fn:contains(pageContext.request.requestURI, 'contact.jsp') ? 'active' : ''}">
                 Liên hệ
             </a>
@@ -176,6 +180,6 @@
     </nav>
 </header>
 
-<script src="${pageContext.request.contextPath}/frontend/js/header.js"></script>
+<script src="${pageContext.request.contextPath}/user/js/header.js"></script>
 </body>
 </html>

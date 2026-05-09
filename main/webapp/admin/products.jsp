@@ -18,7 +18,6 @@
 <jsp:include page="/admin/header.jsp"/>
 <jsp:include page="/admin/sidebar.jsp"/>
 
-<!-- === PRODUCTS === -->
 <div class="main-content">
 
     <div class="page-header">
@@ -39,12 +38,12 @@
             <i class="fas fa-check-circle"></i> ${alertMessage}
         </div>
     </c:if>
-
     <c:if test="${not empty errorMessage}">
         <div class="custom-toast toast-error">
             <i class="fas fa-exclamation-circle"></i> Lỗi: ${errorMessage}
         </div>
     </c:if>
+
     <div class="table-container">
         <table class="data-table">
             <thead>
@@ -88,26 +87,23 @@
                             </div>
                         </div>
                     </td>
+
                     <td><strong>${p.category_name}</strong></td>
 
                     <td style="color: #666;">${p.type_name}</td>
 
                     <td>
-
                         <div class="price-group">
                             <c:choose>
                                 <c:when test="${p.discountPercent > 0}">
-
                                     <span class="price-new">
                                         <fmt:formatNumber value="${p.price_new}" type="number" maxFractionDigits="0"/> đ
                                     </span>
-
                                     <span class="price-old">
                                         <fmt:formatNumber value="${p.price}" type="number" maxFractionDigits="0"/> đ
                                     </span>
                                 </c:when>
                                 <c:otherwise>
-
                                     <span class="price-new">
                                         <fmt:formatNumber value="${p.price}" type="number" maxFractionDigits="0"/> đ
                                     </span>

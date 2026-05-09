@@ -48,16 +48,7 @@ public class CartServlet extends HttpServlet {
             if (action != null) {
 
                 if ("checkout".equals(action)) {
-                    List<CartItem> list = dao.getCartByUserId(user.getId());
-                    if (list == null || list.isEmpty()) {
-                        session.setAttribute("error", "Giỏ hàng của bạn đang trống!");
-                        response.sendRedirect(request.getContextPath() + "/cart");
-                        return;
-                    }
-                    double grandTotal = list.stream().mapToDouble(CartItem::getTotalPrice).sum();
-                    request.setAttribute("cartItems", list);
-                    request.setAttribute("grandTotal", grandTotal);
-                    request.getRequestDispatcher("/user/pay.jsp").forward(request, response);
+                    response.sendRedirect(request.getContextPath() + "/checkout");
                     return;
                 }
 
