@@ -7,7 +7,6 @@
     max-width: 1400px;
     margin: auto;
     margin-bottom: 40px;
-
 }
 
 .checkout-left {
@@ -21,7 +20,7 @@
 
 .checkout-left h4 {
     color: #2a2a2a;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     font-weight: 600;
 }
 
@@ -31,19 +30,61 @@
 
 .form-group input,
 .address-group input,
+.address-group select,
 .address-group textarea {
     width: 100%;
-    padding: 10px 12px;
+    padding: 11px 12px;
     border: 1px solid #ddd;
     border-radius: 6px;
     margin-bottom: 10px;
     box-sizing: border-box;
+    font-size: 14px;
+    transition: all 0.2s ease;
 }
 
+.form-group input:focus,
+.address-group input:focus,
+.address-group select:focus,
+.address-group textarea:focus {
+    outline: none;
+    border-color: #A79277;
+    box-shadow: 0 0 0 3px rgba(167, 146, 119, 0.15);
+}
+
+.address-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 15px;
+}
+
+.address-group textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.address-group select {
+    cursor: pointer;
+    background-color: #fff;
+}
+
+.input-error {
+    border: 1px solid #e53935 !important;
+    background: #fff5f5;
+}
+
+.error-message {
+    color: #e53935;
+    font-size: 12px;
+    display: block;
+    margin-top: -6px;
+    margin-bottom: 8px;
+}
 
 .section-title {
     color: #74512D;
-    margin: 20px 0 8px;
+    margin: 20px 0 10px;
+    font-weight: 600;
 }
 
 .option-grid {
@@ -56,10 +97,10 @@
 .option-box {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     border: 1px solid #ddd;
     border-radius: 8px;
-    padding: 14px 14px;
+    padding: 14px;
     background: #fff;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -70,7 +111,6 @@
 }
 
 .option-box input[type="radio"] {
-    margin-top: 2px;
     accent-color: #74512D;
 }
 
@@ -81,12 +121,11 @@
 }
 
 .main-text {
-    font-weight: 550;
+    font-weight: 600;
     color: #333;
     font-size: 13px;
 }
 
-.option-box input[type="radio"]:checked+.option-content,
 .option-box:has(input[type="radio"]:checked) {
     border-color: #74512D;
     background-color: #f6f6ff;
@@ -123,7 +162,6 @@
     align-items: center;
     margin: 12px 0;
     font-size: 15px;
-    color: #000;
 }
 
 .checkout-right .final-total {
@@ -133,25 +171,21 @@
     justify-content: space-between;
     align-items: center;
     margin: 12px 0;
-    font-size: 15px;
-}
-
-.checkout-right .payment-line p,
-.checkout-right .shipping-line p,
-.checkout-right .total-line p,
-.checkout-right .ship-total p {
-    flex: 1;
+    font-size: 16px;
 }
 
 .checkout-right .final-total span {
-    width: 100px;
-    text-align: right;
     color: #e67e22;
     font-weight: bold;
 }
 
 @media (max-width: 900px) {
-    .cart-container {
+    .checkout-container {
         flex-direction: column;
+        padding: 0 15px;
+    }
+
+    .option-grid {
+        grid-template-columns: 1fr;
     }
 }
