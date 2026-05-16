@@ -1,4 +1,3 @@
-/* Page Header */
 .page-header {
     display: flex;
     justify-content: space-between;
@@ -15,7 +14,6 @@
 
 }
 
-/* Add/Edit Form Card */
 .form-card {
     background: #fff;
     padding: 24px;
@@ -63,6 +61,7 @@
 
 .form-group input[type="text"],
 .form-group input[type="number"],
+.form-group input[type="url"],
 .form-group input[type="file"],
 .form-group select,
 .form-group textarea {
@@ -97,7 +96,6 @@
     justify-content: flex-end;
 }
 
-/* General Table Styling */
 .table-container {
     background: #fff;
     border-radius: 12px;
@@ -145,7 +143,6 @@
     text-decoration: underline;
 }
 
-/* Status Badge */
 .status-badge {
     padding: 5px 12px;
     border-radius: 15px;
