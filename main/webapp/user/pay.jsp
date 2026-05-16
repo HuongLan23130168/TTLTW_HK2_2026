@@ -1,8 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-
-<fmt:setLocale value="vi_VN"/>
+<%@ include file="/common/taglibs.jsp" %>
 
 
 <!DOCTYPE html>
@@ -17,6 +14,8 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/pay.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="${pageContext.request.contextPath}/favicon.ico">
+
 </head>
 
 <body>
@@ -210,10 +209,10 @@
             <h4>THÔNG TIN NGƯỜI NHẬN</h4>
             <div class="form-group">
                 <input type="text" id="fullName" name="fullName" placeholder="Họ & tên*" required>
-                <small class="error-message" id="fullNameError"></small>
+                <small class="error-message"></small>
 
                 <input type="tel" id="phone" name="phone" placeholder="Số điện thoại*" required>
-                <small class="error-message" id="phoneError"></small>
+                <small class="error-message"></small>
 
                 <input type="email" id="email" name="email" value="${sessionScope.acc.email}" required>
                 <small class="error-message"></small>
@@ -345,9 +344,364 @@
     </div>
 </form>
 
-<script src="${pageContext.request.contextPath}/user/js/pay.js"></script>
+<script>
+    (function () {
+        const GHTK_URL = "${pageContext.request.contextPath}/api/ghtk";
+        const PROVINCE_URL = "https://esgoo.net/api-tinhthanh";
+
+        const currentGrandTotal = ${grandTotal != null ? grandTotal : 0};
+        const totalWeight = ${totalWeight != null ? totalWeight : 1000};
+
+        const SHOP_PROVINCE = "Hồ Chí Minh";
+        const SHOP_DISTRICT = "Quận 9";
+
+        let cachedFeeStandard = null;
+        let cachedFeeExpress = null;
+        let currentRequestId = 0;
+
+        const provinceSelect = document.getElementById("province");
+        const districtSelect = document.getElementById("district");
+        const wardSelect = document.getElementById("ward");
+        const shippingFeeDisplay = document.getElementById("shippingFeeDisplay");
+        const finalTotalDisplay = document.getElementById("finalTotalDisplay");
+        const standardShipPrice = document.getElementById("standardShipPrice");
+        const expressShipPrice = document.getElementById("expressShipPrice");
+        const expressShipLabel = document.getElementById("expressShipLabel");
+
+        function formatMoney(n) {
+            return Number(n || 0).toLocaleString("vi-VN") + "₫";
+        }
+
+        function normalizeProvince(name) {
+            if (!name) return "";
+            const map = {
+                "Thành phố Hồ Chí Minh": "TP. Hồ Chí Minh",
+                "Hồ Chí Minh": "TP. Hồ Chí Minh",
+                "TP Hồ Chí Minh": "TP. Hồ Chí Minh",
+                "Tỉnh Thừa Thiên Huế": "Huế",
+                "Thừa Thiên Huế": "Huế",
+                "Thành phố Hà Nội": "Hà Nội",
+                "Hà Nội": "Hà Nội"
+            };
+            let normalized = map[name.trim()];
+            if (normalized) return normalized;
+
+            return name.trim()
+                .replace(/^Tỉnh\s+/, "")
+                .replace(/^Thành phố\s+/, "");
+        }
+
+        function normalizeDistrict(name) {
+            if (!name) return "";
+            const map = {
+                "Thành phố Thủ Đức": "Thành phố Thủ Đức",
+                "Thủ Đức": "Thành phố Thủ Đức"
+            };
+            let normalized = map[name.trim()];
+            if (normalized) return normalized;
+
+            return name.trim()
+                .replace(/^Huyện\s+/, "")
+                .replace(/^Thị xã\s+/, "")
+                .replace(/^Thành phố\s+/, "");
+        }
+
+        function capNhatPhiShip(fee) {
+            if (fee == null || isNaN(fee)) return;
+            document.getElementById("shippingFeeVal").value = fee;
+            shippingFeeDisplay.innerText = formatMoney(fee);
+            finalTotalDisplay.innerText = formatMoney(currentGrandTotal + Number(fee));
+        }
+
+        function resetShippingState() {
+            cachedFeeStandard = null;
+            cachedFeeExpress = null;
+            shippingFeeDisplay.innerText = "Chọn địa chỉ để tính phí";
+            finalTotalDisplay.innerText = formatMoney(currentGrandTotal);
+            standardShipPrice.innerText = "—";
+            expressShipPrice.innerText = "—";
+            expressShipLabel.style.display = "none";
+            document.querySelector('input[value="tiêu chuẩn"]').checked = true;
+            document.getElementById("shippingMethodDisplay").innerText = "TIÊU CHUẨN";
+        }
+
+        function setLoadingState() {
+            standardShipPrice.innerText = "Đang tính...";
+            expressShipPrice.innerText = "Đang tính...";
+            shippingFeeDisplay.innerText = "Đang tính...";
+        }
+
+        async function tinhPhiGHTK(provinceTo, districtTo, transport) {
+            try {
+                const params = new URLSearchParams({
+                    pick_province: normalizeProvince(SHOP_PROVINCE),
+                    pick_district: normalizeDistrict(SHOP_DISTRICT),
+                    province: normalizeProvince(provinceTo),
+                    district: normalizeDistrict(districtTo),
+                    weight: totalWeight,
+                    value: Math.round(currentGrandTotal),
+                    transport: transport
+                });
+
+                const response = await fetch(GHTK_URL + "/fee?" + params.toString());
+                const json = await response.json();
+
+                console.log("GHTK RESPONSE:", transport, json);
+
+                if (json.success && json.fee && json.fee.fee != null) {
+                    return Number(json.fee.fee);
+                }
+                return null;
+            } catch (err) {
+                console.error("Lỗi GHTK:", err);
+                return null;
+            }
+        }
+
+        function apDungPhiHienTai() {
+            const selected = document.querySelector('input[name="shippingType"]:checked');
+            if (!selected) return;
+            const fee = selected.value === "hỏa tốc" ? cachedFeeExpress : cachedFeeStandard;
+            if (fee != null) {
+                capNhatPhiShip(fee);
+            }
+        }
+
+        async function tinhTatCaPhiShip(provinceTo, districtTo) {
+            const requestId = ++currentRequestId;
+
+            setLoadingState();
+            cachedFeeStandard = null;
+            cachedFeeExpress = null;
+
+            const normalizedProvince = normalizeProvince(provinceTo);
+            const isHCM = normalizedProvince.includes("Hồ Chí Minh");
+
+            let feeRoad = null;
+            let feeFly = null;
+
+            if (isHCM) {
+                [feeRoad, feeFly] = await Promise.all([
+                    tinhPhiGHTK(provinceTo, districtTo, "road"),
+                    tinhPhiGHTK(provinceTo, districtTo, "fly")
+                ]);
+            } else {
+                feeRoad = await tinhPhiGHTK(provinceTo, districtTo, "road");
+            }
+
+            if (requestId !== currentRequestId) return;
+
+            if (feeRoad == null) {
+                standardShipPrice.innerText = "Không hỗ trợ khu vực này";
+                shippingFeeDisplay.innerText = "Không khả dụng";
+                expressShipLabel.style.display = "none";
+                document.getElementById("shippingFeeVal").value = "";
+                return;
+            }
+
+            cachedFeeStandard = feeRoad;
+            standardShipPrice.innerText = formatMoney(feeRoad);
+
+            if (isHCM) {
+                if (feeFly != null && feeFly > feeRoad) {
+                    cachedFeeExpress = feeFly;
+                    expressShipPrice.innerText = formatMoney(feeFly);
+                } else {
+                    cachedFeeExpress = Math.round(feeRoad * 1.25);
+                    expressShipPrice.innerText = formatMoney(cachedFeeExpress) + " (ước tính)";
+                }
+                expressShipLabel.style.display = "flex";
+            } else {
+                expressShipLabel.style.display = "none";
+                document.querySelector('input[value="tiêu chuẩn"]').checked = true;
+                document.getElementById("shippingMethodDisplay").innerText = "TIÊU CHUẨN";
+            }
+
+            apDungPhiHienTai();
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            fetch(PROVINCE_URL + "/1/0.htm")
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error === 0) {
+                        data.data.sort((a, b) => a.full_name.localeCompare(b.full_name, "vi"));
+                        data.data.forEach(p => {
+                            provinceSelect.options.add(new Option(p.full_name, p.id));
+                        });
+                    }
+                })
+                .catch(err => console.error("Lỗi fetch tỉnh:", err));
+
+            provinceSelect.onchange = function () {
+                const provinceName = this.options[this.selectedIndex].text;
+                document.getElementById("cityName").value = provinceName;
+
+                districtSelect.innerHTML = '<option value="">Chọn Quận/Huyện</option>';
+                wardSelect.innerHTML = '<option value="">Chọn Phường/Xã</option>';
+                document.getElementById("districtName").value = "";
+                document.getElementById("wardName").value = "";
+
+                resetShippingState();
+
+                if (!this.value) return;
+
+                fetch(PROVINCE_URL + "/2/" + this.value + ".htm")
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.error === 0) {
+                            data.data.sort((a, b) => a.full_name.localeCompare(b.full_name, "vi"));
+                            data.data.forEach(d => {
+                                districtSelect.options.add(new Option(d.full_name, d.id));
+                            });
+                        }
+                    })
+                    .catch(err => console.error("Lỗi fetch quận:", err));
+            };
+
+            districtSelect.onchange = function () {
+                const districtName = this.options[this.selectedIndex].text;
+                document.getElementById("districtName").value = districtName;
+
+                wardSelect.innerHTML = '<option value="">Chọn Phường/Xã</option>';
+                document.getElementById("wardName").value = "";
+
+                if (this.value) {
+                    fetch(PROVINCE_URL + "/3/" + this.value + ".htm")
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.error === 0) {
+                                data.data.sort((a, b) => a.full_name.localeCompare(b.full_name, "vi"));
+                                data.data.forEach(w => {
+                                    wardSelect.options.add(new Option(w.full_name, w.id));
+                                });
+                            }
+                        })
+                        .catch(err => console.error("Lỗi fetch phường:", err));
+                }
+
+                const provinceName = document.getElementById("cityName").value;
+                if (provinceName && districtName) {
+                    tinhTatCaPhiShip(provinceName, districtName);
+                }
+            };
+
+            wardSelect.onchange = function () {
+                document.getElementById("wardName").value = this.options[this.selectedIndex].text;
+            };
+
+            document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
+                radio.addEventListener("change", function () {
+                    document.getElementById("paymentMethodDisplay").innerText =
+                        this.value === "1" ? "COD" : "CHUYỂN KHOẢN";
+                });
+            });
+
+            document.querySelectorAll('input[name="shippingType"]').forEach(radio => {
+                radio.addEventListener("change", function () {
+                    document.getElementById("shippingMethodDisplay").innerText =
+                        this.value === "hỏa tốc" ? "HỎA TỐC" : "TIÊU CHUẨN";
+                    apDungPhiHienTai();
+                });
+            });
+        });
+
+    })();
+
+    const checkoutForm = document.getElementById("checkoutForm");
+
+    checkoutForm.addEventListener("submit", function (e) {
+        let isValid = true;
+        clearAllErrors();
+
+        const provinceSelect = document.getElementById("province");
+        const districtSelect = document.getElementById("district");
+        const wardSelect = document.getElementById("ward");
+        const fullName = document.getElementById("fullName");
+        const fullNameValue = fullName.value.trim();
+        const shippingFee = document.getElementById("shippingFeeVal");
+        const nameRegex = /^[\p{L}\s'.-]{2,50}$/u;
+
+        if (!fullNameValue) {
+            showError(fullName, "Vui lòng nhập họ tên");
+            isValid = false;
+        } else if (!nameRegex.test(fullNameValue)) {
+            showError(fullName, "Họ tên không hợp lệ");
+            isValid = false;
+        }
+
+        const phone = document.getElementById("phone");
+        const phoneValue = phone.value.trim().replace(/\s+/g, "");
+        const phoneRegex = /^0\d{9}$/;
+
+        if (!phoneValue) {
+            showError(phone, "Vui lòng nhập số điện thoại");
+            isValid = false;
+        } else if (!phoneRegex.test(phoneValue)) {
+            showError(phone, "Số điện thoại phải gồm 10 số và bắt đầu bằng 0");
+            isValid = false;
+        }
+
+        const email = document.getElementById("email");
+        const emailValue = email.value.trim();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!emailValue) {
+            showError(email, "Vui lòng nhập email");
+            isValid = false;
+        } else if (!emailRegex.test(emailValue)) {
+            showError(email, "Email không hợp lệ");
+            isValid = false;
+        }
+
+        const addressDetail = document.getElementById("addressDetail");
+        if (!addressDetail.value.trim()) {
+            showError(addressDetail, "Vui lòng nhập địa chỉ");
+            isValid = false;
+        }
+
+        if (!provinceSelect.value) {
+            showError(provinceSelect, "Vui lòng chọn tỉnh/thành");
+            isValid = false;
+        }
+
+        if (!districtSelect.value) {
+            showError(districtSelect, "Vui lòng chọn quận/huyện");
+            isValid = false;
+        }
+
+        if (!wardSelect.value) {
+            showError(wardSelect, "Vui lòng chọn phường/xã");
+            isValid = false;
+        }
+
+        if (shippingFee.value === "" || Number(shippingFee.value) < 0) {
+            alert("Vui lòng chọn địa chỉ để tính phí vận chuyển");
+            isValid = false;
+        }
+
+        if (!isValid) {
+            e.preventDefault();
+        }
+    });
+
+    function showError(input, message) {
+        input.classList.add("error");
+        const error = input.nextElementSibling;
+        if (error && error.classList.contains("error-message")) {
+            error.innerText = message;
+        }
+    }
+
+    function clearAllErrors() {
+        document.querySelectorAll(".error").forEach(el => el.classList.remove("error"));
+        document.querySelectorAll(".error-message").forEach(el => el.innerText = "");
+    }
+</script>
 
 <jsp:include page="/user/footer.jsp"/>
+
 </body>
 
 </html>
