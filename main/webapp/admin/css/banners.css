@@ -106,6 +106,20 @@
 .data-table {
     width: 100%;
     border-collapse: collapse;
+    @media screen and (max-width: 768px) {
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .banner-header h1 {
+            font-size: 24px;
+        }
+    }
 }
 
 .data-table th,
@@ -126,13 +140,6 @@
 
 .data-table tr:hover {
     background-color: #fdf8f1;
-}
-
-.banner-thumbnail {
-    width: 180px;
-    height: auto;
-    border-radius: 6px;
-    object-fit: cover;
 }
 
 .data-table td a {
@@ -228,10 +235,16 @@
 }
 
 .banner-thumbnail {
-    width: 120px;
-    height: 60px;
+    width: 180px;
+    height: auto;
+    border-radius: 6px;
     object-fit: cover;
     border: 1px solid #ddd;
+}
+
+.data-table .banner-thumbnail {
+    width: 120px;
+    height: 60px;
 }
 
 .small-thumb {
