@@ -24,7 +24,7 @@
 
     <div class="form-card">
         <h2>Thêm Thiết Lập Banner Mới</h2>
-        <form action="${pageContext.request.contextPath}/admin/banners" method="post" enctype="multipart/form-data" class="add-banner-form">
+        <form action="${pageContext.request.contextPath}/admin/banners" method="post" class="add-banner-form">
             <input type="hidden" name="action" value="add">
 
             <div class="form-grid">
@@ -34,15 +34,22 @@
                     <label for="title">Tiêu đề chính</label>
                     <input type="text" id="title" name="title" placeholder="VD: BST Nội thất mùa Thu" required>
                 </div>
+
                 <div class="form-group">
-                    <label for="image_file">Ảnh Banner chính (Kích thước lớn)</label>
-                    <input type="file" id="image_file" name="image_file" required accept="image/*">
+                    <label for="image_url">Đường dẫn ảnh Banner chính (URL) <span style="color:red">*</span></label>
+                    <div style="position: relative;">
+                        <i class="fas fa-link" style="position: absolute; left: 12px; top: 12px; color: #888;"></i>
+                        <input type="url" id="image_url" name="image_url" placeholder="https://example.com/banner-main.jpg" required style="padding-left: 35px;">
+                    </div>
+                    <div id="main-preview-container" style="margin-top: 10px; min-height: 25px;"></div>
                 </div>
+
                 <div class="form-group">
                     <label for="link">Đường dẫn khi click</label>
                     <input type="text" id="link" name="link" placeholder="/collections/new-arrival">
                 </div>
-                <div class="form-group">
+
+                <div class="form-group form-group-full">
                     <label for="description">Mô tả chính</label>
                     <textarea id="description" name="description" rows="2"></textarea>
                 </div>
@@ -53,37 +60,30 @@
                     <label for="sub_title">Tiêu đề phụ</label>
                     <input type="text" id="sub_title" name="sub_title" placeholder="VD: Sale 50%">
                 </div>
+
                 <div class="form-group">
-                    <label for="sub_image_file">Ảnh Banner phụ (Kích thước nhỏ)</label>
-                    <input type="file" id="sub_image_file" name="sub_image_file" accept="image/*">
+                    <label for="sub_image_url">Đường dẫn ảnh Banner phụ (URL)</label>
+                    <div style="position: relative;">
+                        <i class="fas fa-link" style="position: absolute; left: 12px; top: 12px; color: #888;"></i>
+                        <input type="url" id="sub_image_url" name="sub_image_url" placeholder="https://example.com/banner-sub.jpg" style="padding-left: 35px;">
+                    </div>
+                    <div id="sub-preview-container" style="margin-top: 10px; min-height: 25px;"></div>
                 </div>
+
                 <div class="form-group">
                     <label for="sub_description">Mô tả phụ</label>
                     <input type="text" id="sub_description" name="sub_description" placeholder="VD: Dành cho khách hàng mới">
                 </div>
-
-                <div class="form-section-title"><h3><i class="fas fa-cog"></i> Cấu hình hiển thị</h3></div>
-                <div class="form-row" style="grid-column: 1 / -1;">
-                    <div class="form-group">
-                        <label for="display_order">Thứ tự ưu tiên</label>
-                        <input type="number" id="display_order" name="display_order" value="1">
-                    </div>
-                    <div class="form-group">
-                        <label for="is_active">Trạng thái</label>
-                        <select id="is_active" name="is_active">
-                            <option value="true" selected>Đang hoạt động</option>
-                            <option value="false">Tạm ẩn</option>
-                        </select>
-                    </div>
-                </div>
             </div>
 
             <div class="form-actions">
-                <button type="reset" class="btn btn-secondary">Nhập lại</button>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Lưu thiết lập</button>
+                <button type="reset" class="btn" style="background-color: #e9ecef; color: #495057;">
+                    <i class="fas fa-redo"></i> Làm lại
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Thêm Banner
+                </button>
             </div>
-        </form>
-    </div>
 
     <div class="table-container">
         <table class="data-table">
@@ -176,29 +176,52 @@
     </div>
 </main>
 <script>
-    function previewImage(input, previewId) {
+    function previewImageFromUrl(inputId, previewId) {
+        const input = document.getElementById(inputId);
         const preview = document.getElementById(previewId);
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                let img = preview.querySelector('img');
-                if (!img) {
-                    img = document.createElement('img');
-                    img.className = 'banner-thumbnail-small';
-                    preview.innerHTML = '<p>Xem trước ảnh mới:</p>';
-                    preview.appendChild(img);
-                }
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-    document.getElementById('image_file').addEventListener('change', function() {
-        previewImage(this, 'main-preview-container');
-    });
+        let typingTimer;
+        const doneTypingInterval = 500;
 
-    document.getElementById('sub_image_file').addEventListener('change', function() {
-        previewImage(this, 'sub-preview-container');
+        input.addEventListener('input', function() {
+            clearTimeout(typingTimer);
+            const url = this.value.trim();
+
+            if (!url) {
+                preview.innerHTML = '';
+                return;
+            }
+
+
+            preview.innerHTML = '<p style="font-size: 13px; color: #888;"><i class="fas fa-spinner fa-spin"></i> Đang tải ảnh...</p>';
+
+
+            typingTimer = setTimeout(() => {
+                const img = new Image();
+
+                img.onload = function() {
+                    preview.innerHTML = '<p style="font-size: 13px; color: #3d8b58; margin-bottom: 5px;"><i class="fas fa-check-circle"></i> Xem trước ảnh:</p>';
+                    img.className = 'banner-thumbnail';
+                    img.style.maxHeight = '150px';
+                    img.style.width = 'auto';
+                    img.style.objectFit = 'contain';
+                    img.style.borderRadius = '6px';
+                    img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                    img.style.border = '1px solid #ddd';
+                    preview.appendChild(img);
+                };
+
+                img.onerror = function() {
+                    preview.innerHTML = '<p style="color: #dc3545; font-size: 13px;"><i class="fas fa-exclamation-triangle"></i> Link ảnh không hợp lệ hoặc không thể tải được.</p>';
+                };
+
+                img.src = url;
+            }, doneTypingInterval);
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        previewImageFromUrl('image_url', 'main-preview-container');
+        previewImageFromUrl('sub_image_url', 'sub-preview-container');
     });
 </script>
 </body>
