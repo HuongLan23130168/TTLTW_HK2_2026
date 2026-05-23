@@ -1,19 +1,21 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ include file="/common/taglibs.jsp" %>
+
 
 <!DOCTYPE html>
 <html lang="vi">
 
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hoàn tất</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/header.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/footer.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/completed.css"/>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/completed.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap"
+          rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="${pageContext.request.contextPath}/favicon.ico">
 </head>
 
 <body>
@@ -175,7 +177,7 @@
     }
 </style>
 
-<jsp:include page="/user/header.jsp"/>
+<jsp:include page="/user/header.jsp" />
 
 
 <div class="breadcrumb">
@@ -203,7 +205,8 @@
         <div class="cart-list">
             <c:forEach var="item" items="${orderItems}">
                 <div class="cart-item">
-                    <img src="${item.imageUrl}" alt="${item.name}">
+                    <img src="${item.imageUrl}" alt="${item.name}"
+                         onerror="this.src='https://placehold.co/80x80?text=No+Image'">
                     <div class="item-info">
                         <h4>${item.name}</h4>
                         <p style="font-size: 12px; color: #888; margin: 5px 0;">
@@ -211,17 +214,19 @@
                             Phân loại: ${not empty item.color ? item.color : 'Mặc định'} - ${item.size}
                         </p>
                         <div class="price">
-                            <span class="current-price">
-                                <span class="current-price">
-                                    <fmt:formatNumber value="${(item.price * item.quantity) * (1 - (item.discount / 100.0))}" pattern="#,###"/>₫
-                                </span>
-                            </span>
+                                        <span class="current-price">
+                                            <span class="current-price">
+                                                <fmt:formatNumber value="${item.price * (1 - item.discount / 100)}"
+                                                                  pattern="#,###" />₫
+                                            </span>
+                                        </span>
 
                             <c:if test="${item.discount > 0}">
-                                <span class="old-price"
-                                      style="text-decoration: line-through; color: #888; font-size: 0.9em; margin-left: 5px;">
-                                    <fmt:formatNumber value="${item.price * item.quantity}" pattern="#,###"/>₫
-                                </span>
+                                            <span class="old-price"
+                                                  style="text-decoration: line-through; color: #888; font-size: 0.9em; margin-left: 5px;">
+                                                <fmt:formatNumber value="${item.price}" pattern="#,###" />₫
+                                            </span>
+                                <span class="discount">(-${item.discount}%)</span>
                             </c:if>
                         </div>
                     </div>
@@ -230,6 +235,13 @@
         </div>
 
         <div class="order-summary">
+            <c:set var="subtotal" value="0" />
+            <c:forEach var="item" items="${orderItems}">
+                <c:set var="itemTotal" value="${item.price * (1 - item.discount / 100) * item.quantity}" />
+                <c:set var="subtotal" value="${subtotal + itemTotal}" />
+            </c:forEach>
+            <c:set var="finalTotal" value="${subtotal + shippingFee}" />
+
             <table>
                 <tr class="divider">
                     <td colspan="2"></td>
@@ -256,11 +268,14 @@
                 </tr>
                 <tr>
                     <td>Ngày đặt</td>
-                    <td><fmt:formatDate value="${orderDate}" pattern="dd/MM/yyyy HH:mm"/></td>
+                    <td>
+                        <fmt:formatDate value="${orderDate}" pattern="dd/MM/yyyy HH:mm" />
+                    </td>
                 </tr>
                 <tr>
                     <td>Ghi chú</td>
-                    <td><i style="color: #666;">${not empty orderNote ? orderNote : 'Không có ghi chú'}</i></td>
+                    <td><i style="color: #666;">${not empty orderNote ? orderNote : 'Không có ghi chú'}</i>
+                    </td>
                 </tr>
                 <tr class="divider">
                     <td colspan="2"></td>
@@ -278,11 +293,15 @@
                 </tr>
                 <tr>
                     <td>Tổng tiền hàng</td>
-                    <td><fmt:formatNumber value="${grandTotal}" pattern="#,###"/>₫</td>
+                    <td>
+                        <fmt:formatNumber value="${subtotal}" pattern="#,###" />₫
+                    </td>
                 </tr>
                 <tr>
                     <td>Phí vận chuyển</td>
-                    <td><fmt:formatNumber value="${shippingFee}" pattern="#,###"/>₫</td>
+                    <td>
+                        <fmt:formatNumber value="${shippingFee}" pattern="#,###" />₫
+                    </td>
                 </tr>
                 <tr class="divider">
                     <td colspan="2"></td>
@@ -292,8 +311,8 @@
             <div class="total">
                 <span>TỔNG THANH TOÁN</span>
                 <span class="price">
-                    <fmt:formatNumber value="${grandTotal + shippingFee}" pattern="#,###"/>₫
-                </span>
+                                <fmt:formatNumber value="${finalTotal}" pattern="#,###" />₫
+                            </span>
             </div>
         </div>
 
@@ -301,7 +320,7 @@
     </div>
 </div>
 
-<jsp:include page="/user/footer.jsp"/>
+<jsp:include page="/user/footer.jsp" />
 
 
 </body>
