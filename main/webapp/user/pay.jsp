@@ -257,7 +257,7 @@
                     <div class="option-content"><p class="main-text">COD</p></div>
                 </label>
                 <label class="option-box">
-                    <input type="radio" name="paymentMethod" value="2">
+                    <input type="radio" name="paymentMethod" value="2" id="bankTransferRadio">
                     <div class="option-content"><p class="main-text">CHUYỂN KHOẢN</p></div>
                 </label>
             </div>
@@ -698,6 +698,8 @@
         document.querySelectorAll(".error").forEach(el => el.classList.remove("error"));
         document.querySelectorAll(".error-message").forEach(el => el.innerText = "");
     }
+
+
 </script>
 
 <jsp:include page="/user/footer.jsp"/>
