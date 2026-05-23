@@ -9,7 +9,6 @@ import jakarta.servlet.annotation.*;
 
 import java.io.IOException;
 
-
 @WebServlet(name = "UpdateOrderStatusServlet", value = "/admin/updateOrderStatus")
 public class AdminUpdateOrderStatusServlet extends HttpServlet {
 
@@ -33,37 +32,32 @@ public class AdminUpdateOrderStatusServlet extends HttpServlet {
             int orderId = Integer.parseInt(orderIdStr);
             String newStatus = "";
             String newShippingStatus = "";
+            String note = "";
 
-              if (currentStatus.equalsIgnoreCase("Chờ xử lý") || currentStatus.equalsIgnoreCase("Chờ lấy hàng")) {
-                newStatus = "Đang giao";
-                newShippingStatus = "Đang vận chuyển";
-            }
-
-
-            else if (currentStatus.contains("Đang giao") || currentStatus.contains("Vận chuyển")) {
-                newStatus = "Chờ xác nhận";
-                newShippingStatus = "Đã đến nơi giao nhận";
-
-
-
+            // xác nhận đã giao đon hangf cho đơn vị vận chuyển
+            if (currentStatus.equalsIgnoreCase("Chờ xử lý")) {
+                newStatus = "Đã xác nhận - Giao vận chuyển";
+                newShippingStatus = "Đã giao cho đơn vị vận chuyển";
+                note = "Admin đã xác nhận đơn hàng và chuyển cho đơn vị vận chuyển";
             } else {
-                response.sendRedirect(request.getContextPath() + "/admin/orders?msg=no_change");
+                response.sendRedirect(request.getContextPath() + "/admin/orders?msg=cannot_change");
                 return;
             }
 
-            boolean success = orderDAO.updateOrderStatus(orderId, newStatus, newShippingStatus);
+            // method cho 4 trạng thái
+            boolean success = orderDAO.updateOrderStatus(orderId, newStatus, note, newShippingStatus);
 
             if (success) {
                 NotificationService notificationService = new NotificationService();
                 Order order = orderDAO.getOrderById(orderId);
-                notificationService.notifyOrderUpdate(order, newStatus);
+                if (order != null) {
+                    notificationService.notifyOrderUpdate(order, newStatus);
+                }
 
-                // Nếu đang ở trang chi tiết (View Order) thì reload lại trang đó
                 String referer = request.getHeader("Referer");
                 if (referer != null && referer.contains("viewOrder")) {
                     response.sendRedirect(request.getContextPath() + "/admin/viewOrder?orderId=" + orderId + "&msg=success");
                 } else {
-                    // Nếu ở trang danh sách
                     response.sendRedirect(request.getContextPath() + "/admin/orders?msg=success");
                 }
             } else {
@@ -75,5 +69,4 @@ public class AdminUpdateOrderStatusServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/admin/orders?error=system");
         }
     }
-
 }
