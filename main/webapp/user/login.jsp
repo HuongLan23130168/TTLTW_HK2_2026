@@ -111,6 +111,15 @@
                 <button type="submit" class="submit-btn" style="border:none; width:100%; cursor:pointer;">Đăng nhập
                 </button>
             </form>
+            <div class="divider">
+                 <span>Hoặc</span>
+            </div>
+            
+            <div class="social">
+                <button type="button" class="btn-social gg" onclick="location.href='${pageContext.request.contextPath}/login-google'">
+                    <i class="fab fa-google"></i> Đăng nhập bằng Google
+                </button>
+            </div>
         </div>
     </div>
 </div>
