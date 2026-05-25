@@ -16,10 +16,14 @@ public class User {
     private Timestamp created_at;
     private int status;
 
+    private String googleId;
+    private String provider;
+
     public User() {
+        this.provider = "local";
     }
 
-    public User(int id, String fullName, String birth, String gender, String email, String password, String phone, String role, String address, Timestamp created_at, int status) {
+    public User(int id, String fullName, String birth, String gender, String email, String password, String phone, String role, String address, Timestamp created_at, int status, String googleId, String provider) {
         this.id = id;
         this.fullName = fullName;
         this.birth = birth;
@@ -31,6 +35,8 @@ public class User {
         this.address = address;
         this.created_at = created_at;
         this.status = status;
+        this.googleId = googleId;
+        this.provider = provider;
     }
 
     public int getId() {
@@ -119,6 +125,30 @@ public class User {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public String getGoogleId() { 
+        return googleId; 
+    }
+
+    public void setGoogleId(String googleId) { 
+        this.googleId = googleId; 
+    }
+
+    public String getProvider() { 
+        return provider; 
+    }
+
+    public void setProvider(String provider) { 
+        this.provider = provider; 
+    }
+
+    public boolean isGoogleAccount() {
+        return "google".equals(provider) || "both".equals(provider);
+    }
+
+    public boolean isLocalAccount() {
+        return "local".equals(provider) || "both".equals(provider);
     }
 }
 
