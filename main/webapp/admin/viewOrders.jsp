@@ -76,54 +76,64 @@
                     </a>
                 </div>
 
+                    <%-- Thay  order actions --%>
                 <div class="order-actions">
                     <h3>Hành động</h3>
-                    <form action="${pageContext.request.contextPath}/admin/updateOrderStatus" method="post">
-                        <input type="hidden" name="orderId" value="${order.id}">
-                        <input type="hidden" name="currentStatus" value="${order.status}">
 
-                        <c:choose>
-                            <c:when test="${order.status == 'Chờ xử lý' || order.status == 'Chờ lấy hàng'}">
-                                <button type="submit" class="btn-action btn-ship"
-                                        onclick="return confirm('Xác nhận giao đơn hàng này cho đơn vị vận chuyển?');">
-                                    <i class="fa fa-truck"></i> Xác nhận Giao Hàng
+                    <c:choose>
+                        <%-- Admin xác nhận đơn hàng và giao cho vận chuyển --%>
+                        <c:when test="${order.status == 'Chờ xử lý'}">
+                            <form action="${pageContext.request.contextPath}/admin/updateOrderStatus" method="post">
+                                <input type="hidden" name="orderId" value="${order.id}">
+                                <input type="hidden" name="currentStatus" value="${order.status}">
+                                <button type="submit" class="btn-action btn-confirm"
+                                        onclick="return confirm('Xác nhận đơn hàng và giao cho đơn vị vận chuyển?');">
+                                    <i class="fa fa-check-circle"></i> Xác nhận & Giao vận chuyển
                                 </button>
-                            </c:when>
+                            </form>
+                        </c:when>
 
-                            <c:when test="${fn:contains(order.status, 'Đang giao') || fn:contains(order.status, 'Vận chuyển')}">
-                                <button type="submit" class="btn-action" style="background-color: #d35400;"
-                                        onclick="return confirm('Xác nhận hàng ĐÃ ĐẾN ĐỊA CHỈ KHÁCH (Chờ khách xác nhận)?');">
-                                    <i class="fa fa-map-marker-alt"></i> Xác nhận Hàng Đã Đến
-                                </button>
-                            </c:when>
+                        <c:when test="${order.status == 'Đã xác nhận - Giao vận chuyển'}">
+                            <div class="alert-box" style="background: #e8f8f5; color: #1abc9c;">
+                                <i class="fa fa-truck"></i> Đã giao cho đơn vị vận chuyển. Đang chờ cập nhật...
+                            </div>
+                        </c:when>
 
-                            <c:when test="${order.status == 'Chờ xác nhận'}">
-                                <div class="alert-box"
-                                     style="background: #fdebd0; color: #d35400; border: 1px solid #fad7a0;">
-                                    <i class="fa fa-clock"></i> Đã giao hàng đến nơi. Đang chờ khách xác nhận.
-                                </div>
-                            </c:when>
+                        <c:when test="${order.status == 'Đã lấy hàng'}">
+                            <div class="alert-box" style="background: #fef9e7; color: #f39c12;">
+                                <i class="fa fa-box"></i> Đơn vị vận chuyển đã lấy hàng
+                            </div>
+                        </c:when>
 
-                            <c:when test="${fn:contains(order.status, 'Đã giao') || fn:contains(order.status, 'Hoàn thành')}">
-                                <div class="alert-box alert-success">
-                                    <i class="fa fa-check-double"></i> Đơn hàng hoàn tất
-                                </div>
-                            </c:when>
+                        <c:when test="${order.status == 'Đang vận chuyển'}">
+                            <div class="alert-box" style="background: #ebf5fb; color: #3498db;">
+                                <i class="fa fa-shipping-fast"></i> Đang vận chuyển
+                                <c:if test="${not empty order.shipping.trackingNumber}">
+                                    <br><small>Mã vận đơn: ${order.shipping.trackingNumber}</small>
+                                </c:if>
+                            </div>
+                        </c:when>
 
-                            <c:when test="${fn:contains(order.status, 'hủy') || fn:contains(order.status, 'Hủy')}">
-                                <div class="alert-box alert-cancel">
-                                    <i class="fa fa-times-circle"></i> Đơn hàng đã hủy
-                                </div>
-                            </c:when>
+                        <c:when test="${order.status == 'Đã giao hàng - Hoàn thành'}">
+                            <div class="alert-box alert-success">
+                                <i class="fa fa-check-double"></i> Đơn hàng đã giao thành công
+                            </div>
+                        </c:when>
 
-                            <c:otherwise>
-                                <div class="alert-box alert-default">
-                                    <i class="fa fa-info-circle"></i> Không có hành động
-                                </div>
-                            </c:otherwise>
-                        </c:choose>
-                    </form>
+                        <c:when test="${fn:contains(order.status, 'hủy')}">
+                            <div class="alert-box alert-cancel">
+                                <i class="fa fa-times-circle"></i> Đơn hàng đã hủy
+                            </div>
+                        </c:when>
+
+                        <c:otherwise>
+                            <div class="alert-box">
+                                <i class="fa fa-info-circle"></i> ${order.status}
+                            </div>
+                        </c:otherwise>
+                    </c:choose>
                 </div>
+
                 <div class="detail-card">
                     <h3>Thông tin khách hàng</h3>
                     <table>
@@ -169,7 +179,6 @@
 
                                     <div class="product-item-image">
                                         <c:set var="imgUrl" value="${item.imageUrl}" />
-                                            <%-- Sử dụng ảnh placeholder lớn nếu không có ảnh --%>
                                         <c:if test="${empty imgUrl}">
                                             <c:set var="imgUrl" value="https://placehold.co/300x300?text=No+Img" />
                                         </c:if>

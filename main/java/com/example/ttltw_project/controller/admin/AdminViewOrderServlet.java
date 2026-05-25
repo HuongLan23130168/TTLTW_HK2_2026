@@ -30,7 +30,7 @@ public class AdminViewOrderServlet extends HttpServlet {
 
                Order order = orderDAO.getOrderById(orderId);
 
-            if (order == null) {
+              if (order == null) {
                 request.getSession().setAttribute("errorMessage", "Không tìm thấy đơn hàng với ID: " + orderId);
                 response.sendRedirect(request.getContextPath() + "/admin/orders");
                 return;

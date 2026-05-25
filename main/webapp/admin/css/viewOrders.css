@@ -1,4 +1,3 @@
-/* === BREADCRUMB === */
 .breadcrumb {
     margin: 2px 40px 20px;
     color: #333;
@@ -19,7 +18,6 @@
     font-weight: 700;
 }
 
-/* === LAYOUT SONG SONG === */
 .transaction-wrapper {
     display: flex;
     gap: 25px;
@@ -35,7 +33,6 @@
     flex: 2;
 }
 
-/* === THẺ HEADER ORDER ID === */
 .orders-id {
     width: 100%;
     min-height: 70px;
@@ -62,7 +59,6 @@
     font-weight: bold;
 }
 
-/* Header phụ: Ngày tháng */
 .order-date-text {
     font-weight: normal;
     color: #666;
@@ -88,35 +84,30 @@
     border: 1px solid #fad7a0;
 }
 
-/* ĐÃ GIAO - XANH LÁ */
 .status-completed {
     background-color: #d4edda;
     color: #155724;
     border: 1px solid #c3e6cb;
 }
 
-/* ĐANG GIAO - XANH BIỂN */
 .status-shipping {
     background-color: #d6eaf8;
     color: #2980b9;
     border: 1px solid #aed6f1;
 }
 
-/* CHỜ XỬ LÝ - VÀNG */
 .status-pending {
     background-color: #fff3cd;
     color: #856404;
     border: 1px solid #ffeeba;
 }
 
-/* ĐÃ HỦY - ĐỎ */
 .status-cancelled {
     background-color: #f8d7da;
     color: #721c24;
     border: 1px solid #f5c6cb;
 }
 
-/* === CARD CHI TIẾT === */
 .detail-card, .order-actions {
     background: #fff;
     border-radius: 15px;
@@ -140,7 +131,6 @@
     padding-bottom: 10px;
 }
 
-/* === ACTION BUTTONS === */
 .btn-action {
     width: 100%;
     justify-content: center;
@@ -163,7 +153,6 @@
 .btn-complete { background-color: #27ae60; }
 .btn-complete:hover { background-color: #1e8449; transform: translateY(-2px); }
 
-/* Alert Boxes */
 .alert-box {
     text-align: center;
     font-weight: bold;
@@ -178,7 +167,6 @@
 .alert-cancel { color: #c0392b; background: #fadbd8; border: 1px solid #f5b7b1; }
 .alert-default { background: #eee; color: #555; }
 
-/* === BẢNG VÀ DANH SÁCH === */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -201,12 +189,10 @@ tr:hover {
     transition: background 0.3s ease;
 }
 
-/* Định dạng cột trong bảng chi tiết khách hàng */
 .label-col { width: 30%; color: #666; }
 .note-text { color: #d35400; font-style: italic; }
 .payment-badge { background: #f0f0f0; padding: 3px 8px; border-radius: 4px; }
 
-/* Định dạng cột trong bảng sản phẩm */
 .col-index { width: 10%; }
 .col-product { width: 40%; }
 .col-qty { width: 15%; }
@@ -275,7 +261,7 @@ tr:hover {
     position: relative;
     width: 60px;
     height: 60px;
-    flex-shrink: 0; /* Không cho ảnh bị bóp méo */
+    flex-shrink: 0;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
     background: #f9f9f9;
@@ -476,4 +462,37 @@ tr:hover {
     color: #d35400;
     margin-top: 15px;
     font-weight: 800;
+}
+
+.btn-action.btn-confirm {
+    background-color: #27ae60;
+}
+
+.btn-action.btn-confirm:hover {
+    background-color: #229954;
+}
+
+.alert-box {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.alert-box i {
+    font-size: 18px;
+}
+
+.alert-success {
+    background: #d5f5e3;
+    color: #27ae60;
+    border: 1px solid #abebc6;
+}
+
+.alert-cancel {
+    background: #fadbd8;
+    color: #e74c3c;
+    border: 1px solid #f5b7b1;
 }
