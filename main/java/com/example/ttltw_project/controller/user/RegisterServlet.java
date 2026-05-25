@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @WebServlet(name = "RegisterServlet", value = "/register")
 public class RegisterServlet extends HttpServlet {
@@ -28,7 +29,6 @@ public class RegisterServlet extends HttpServlet {
         String confirmPass = request.getParameter("confirmPassword");
 
         String emailRegex = "^[a-zA-Z0-9._%+-]+@([a-zA-Z0-9.-]+\\.)+(gmail|yahoo|outlook|edu|vn|com)$";
-
         if (email == null || !email.matches(emailRegex)) {
             request.setAttribute("registerError", "Email không hợp lệ!");
             request.getRequestDispatcher("/user/login.jsp").forward(request, response);
@@ -48,20 +48,24 @@ public class RegisterServlet extends HttpServlet {
             return;
         }
 
-        String hashedPass = EncryptionUtils.hashMD5(password);
         UserDAO dao = new UserDAO();
 
-        boolean isSuccess = dao.register(fullName, email, hashedPass);
-        if (isSuccess) {
-            String token = java.util.UUID.randomUUID().toString();
-            dao.updateToken(email, token);
+        if (dao.checkEmailExists(email)) {
+            request.setAttribute("registerError", "Email đã tồn tại!");
+            request.getRequestDispatcher("/user/login.jsp").forward(request, response);
+            return;
+        }
 
+        boolean isSuccess = dao.register(fullName, email, password);
+        if (isSuccess) {
+            String token = UUID.randomUUID().toString();
+            dao.updateToken(email, token);
             new EmailService().sendMagicLink(email, token, request.getContextPath());
 
-            request.setAttribute("successMessage", "Đăng ký thành công! Vui lòng kiểm tra Email để kích hoạt tài khoản.");
+            request.setAttribute("successMessage","Đăng ký thành công! Vui lòng kiểm tra Email để kích hoạt tài khoản.");
             request.getRequestDispatcher("/user/login.jsp").forward(request, response);
         } else {
-            request.setAttribute("registerError", "Email đã tồn tại!");
+            request.setAttribute("registerError", "Đăng ký thất bại, vui lòng thử lại!");
             request.getRequestDispatcher("/user/login.jsp").forward(request, response);
         }
     }
