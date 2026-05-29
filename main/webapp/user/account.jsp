@@ -1,6 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ include file="/common/taglibs.jsp" %>
+
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -11,11 +11,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/account.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/return.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/accountOrders.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/footer.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/changePass.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/user/user/css/changePass.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/header.css">
+    <link rel="icon" type="image/x-icon" href="${pageContext.request.contextPath}/favicon.ico">
+
 
 
 </head>
@@ -49,8 +50,7 @@
             </li>
         </ul>
 
-        <a href="${pageContext.request.contextPath}/logout">Đăng xuất</a>
-
+        <div class="logout-btn"><a href="logout">Đăng xuất</a></div>
     </aside>
 
     <main class="account-details">
@@ -71,7 +71,7 @@
                 <button class="edit-btn" onclick="toggleProfileEdit()">Sửa</button>
             </div>
 
-            <form action="update-profile" method="post" class="info-box hidden" id="profile-edit" style="display: block;">
+            <form action="update-profile" method="post" class="info-box hidden" id="profile-edit">
                 <div class="info-left" style="width: 100%;">
                     <h3 style="color: #6F4E37; border-bottom: 1px solid #ddd; padding-bottom: 10px; margin-bottom: 15px;">
                         Cập nhật thông tin
@@ -96,26 +96,20 @@
                     </div>
 
                     <div class="form-group" style="margin-bottom: 15px;">
-                        <label>Giới tính:</label>
-
-                        <select name="gender" style="width:100%; padding:8px; border:1px solid #A79277; border-radius:5px;">
+                        <label style="display:block; font-weight:bold; margin-bottom:5px;">Giới tính:</label>
+                        <select name="gender"
+                                style="width: 100%; padding: 8px; border: 1px solid #A79277; border-radius: 5px;">
                             <option value="Nam" ${user.gender == 'Nam' ? 'selected' : ''}>Nam</option>
                             <option value="Nữ" ${user.gender == 'Nữ' ? 'selected' : ''}>Nữ</option>
                             <option value="Khác" ${user.gender == 'Khác' ? 'selected' : ''}>Khác</option>
                         </select>
-
                     </div>
 
                     <div class="form-group" style="margin-bottom: 15px;">
-                        <label>Ngày sinh:</label>
-
-                        <input type="date"
-                               name="birth"
-                               value="${user.birth}"
-                               style="width:100%; padding:8px; border:1px solid #A79277; border-radius:5px;">
+                        <label style="display:block; font-weight:bold; margin-bottom:5px;">Ngày sinh:</label>
+                        <input type="date" name="birth" value="${user.birth}"
+                               style="width: 100%; padding: 8px; border: 1px solid #A79277; border-radius: 5px;">
                     </div>
-
-
 
                     <div style="text-align: right;">
                         <button type="button" class="cancel-btn" onclick="toggleProfileEdit()"
@@ -151,12 +145,15 @@
                             </div>
 
                             <div class="address-actions" style="min-width: 100px; text-align: right;">
-                                <button onclick="openEditModal('${addr.id}', '${addr.address}', ${addr.is_default})"
+                                <button type="button" class="edit-address-btn"
+                                        data-id="${addr.id}"
+                                        data-address="${fn:escapeXml(addr.address)}"
+                                        data-default="${addr.is_default}"
                                         style="background: #6F4E37; color: #fff; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;">
                                     Sửa
                                 </button>
 
-                                <a href="${pageContext.request.contextPath}/delete-address?id=${addr.id}" onclick="return confirm('Bạn có chắc muốn xóa địa chỉ này không?');"
+                                <a href="delete-address?id=${addr.id}" onclick="return confirm('Bạn có chắc muốn xóa địa chỉ này không?');"
                                    style="background: #d9534f; color: #fff; text-decoration: none; padding: 5px 10px; border-radius: 4px; font-size: 13.33px;">
                                     Xóa
                                 </a>
@@ -165,9 +162,8 @@
                     </c:forEach>
                     <div id="modal-edit-address" class="modal">
                         <div class="modal-content">
-
                             <h3 style="color: #6F4E37; margin-top: 0;">Cập nhật địa chỉ</h3>
-                            <form action="${pageContext.request.contextPath}/update-address" method="post">
+                            <form action="update-address" method="post">
                                 <input type="hidden" id="edit-id" name="id">
 
                                 <div style="margin-bottom: 15px;">
@@ -198,22 +194,30 @@
             </div>
         </div>
 
-     
         <div id="modal-address" class="modal">
             <div class="modal-content">
-                <h3 style="color: #6F4E37;">Thêm địa chỉ mới</h3>
-                <form action="${pageContext.request.contextPath}/add-address" method="post">
-                    <label style="display:block; margin: 10px 0 5px; font-weight: bold;">Địa chỉ chi tiết:</label>
-                    <textarea name="address" rows="3" placeholder="Ví dụ: 123 Đường ABC, Phường X, Quận Y..." required style="width: 100%; padding: 10px; border: 1px solid #A79277; border-radius: 5px;"></textarea>
-
-                    <div style="margin-top: 10px;">
-                        <input type="checkbox" id="isDefault" name="isDefault" value="1">
-                        <label for="isDefault">Đặt làm địa chỉ mặc định</label>
+                <h3 style="color: #6F4E37; margin-top: 0;">Thêm địa chỉ mới</h3>
+                <form action="add-address" method="post">
+                    <div style="margin-bottom: 15px;">
+                        <label style="display:block; font-weight:bold; margin-bottom:5px; color: #6F4E37;">Địa chỉ chi tiết:</label>
+                        <textarea name="address" rows="3" required placeholder="Số nhà, Tên đường, Phường/Xã, Quận/Huyện..."
+                                  style="width: 100%; padding: 10px; border: 1px solid #A79277; border-radius: 5px; font-family: inherit;"></textarea>
                     </div>
 
-                    <div class="modal-actions" style="margin-top: 20px; text-align: right;">
-                        <button type="button" class="cancel-btn" onclick="closeAddressModal()">Đóng</button>
-                        <button type="submit" class="save-btn">Lưu địa chỉ</button>
+                    <div style="margin-bottom: 20px;">
+                        <input type="checkbox" id="isDefault" name="isDefault" value="1">
+                        <label for="isDefault" style="cursor: pointer; color: #333;">Đặt làm địa chỉ mặc định</label>
+                    </div>
+
+                    <div style="text-align: right;">
+                        <button type="button" onclick="closeAddressModal()"
+                                style="padding: 8px 15px; background: #eee; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">
+                            Đóng
+                        </button>
+                        <button type="submit"
+                                style="padding: 8px 15px; background: #6F4E37; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            Lưu địa chỉ
+                        </button>
                     </div>
                 </form>
             </div>
@@ -271,6 +275,9 @@
                         <div class="order-card">
                             <div class="order-status">
                                 <c:choose>
+                                    <c:when test="${o.returnStatus == 'APPROVED'}"><span class="status-badge cancel">Đã hoàn</span></c:when>
+                                    <c:when test="${o.returnStatus == 'PENDING'}"><span class="status-badge waiting">Chờ duyệt hoàn hàng</span></c:when>
+                                    <c:when test="${o.returnStatus == 'REJECTED'}"><span class="status-badge waiting">Không chấp nhận hoàn hàng</span></c:when>
                                     <c:when test="${o.status == 'Đã giao'}"><span class="status-badge success">Đã giao</span></c:when>
                                     <c:when test="${o.status == 'Đang giao'}"><span class="status-badge shipping">Đang giao</span></c:when>
                                     <c:when test="${o.status == 'Đã hủy'}"><span class="status-badge cancel">Đã hủy</span></c:when>
@@ -328,55 +335,55 @@
                                     </form>
 
                                 </c:if>
-
-                                    <c:set var="stt" value="${o.status.toLowerCase()}" />
-                                    <c:if test="${stt.contains('đã giao')}">
-                                        <button class="btn-return"
-                                                onclick="openReturnModal('${o.id}','${o.imageUrl}','${o.productName}')">
-                                            Hoàn trả đơn hàng </button>
-                                    </c:if>
-
+                                <c:if test="${o.returnEligible}">
+                                    <button type="button" class="order-view-btn-huy"
+                                            style="background: #f42323;"
+                                            onclick="openReturnModal('${o.id}')">
+                                        Hoàn hàng
+                                    </button>
+                                </c:if>
                                 <a href="${pageContext.request.contextPath}/tracking?orderCode=${o.orderCode}"
                                    class="order-view-btn"
                                    style="text-decoration: none;">
                                     Xem chi tiết
                                 </a>
                             </div>
-                        </div>
 
-                     <div id="modal-return" class="modal">
+                            <div id="return-modal-${o.id}" class="modal">
+                                <div class="modal-content">
+                                    <h3 style="color: #6F4E37; margin-top: 0;">Yêu cầu hoàn hàng #${o.orderCode}</h3>
+                                    <form action="${pageContext.request.contextPath}/user/returnOrder" method="post" enctype="multipart/form-data">
+                                        <input type="hidden" name="orderId" value="${o.id}">
 
-                            <div class="modal-content">
+                                        <div style="margin-bottom: 12px;">
+                                            <label style="display:block; font-weight:bold; margin-bottom:5px;">Ảnh đơn hàng</label>
+                                            <input type="file" name="returnImage" accept="image/*" required>
+                                        </div>
 
-                                <form action="${pageContext.request.contextPath}/return-order"
-                                      method="post"
-                                      enctype="multipart/form-data">
+                                        <div style="margin-bottom: 12px;">
+                                            <label style="display:block; font-weight:bold; margin-bottom:5px;">Video đơn hàng</label>
+                                            <input type="file" name="returnVideo" accept="video/*" required>
+                                        </div>
 
-                                    <input type="hidden" name="orderId" id="returnOrderId">
+                                        <div style="margin-bottom: 15px;">
+                                            <label style="display:block; font-weight:bold; margin-bottom:5px;">Phản hồi cho admin</label>
+                                            <textarea name="feedback" rows="4" required
+                                                      style="width: 100%; padding: 10px; border: 1px solid #A79277; border-radius: 5px; font-family: inherit;"></textarea>
+                                        </div>
 
-                                    <img id="returnProductImg" class="return-product-img">
-
-                                    <label>Lý do hoàn trả</label>
-                                    <textarea name="reason" required></textarea>
-
-                                    <label>Ảnh minh chứng</label>
-                                    <input type="file" name="returnImage" required>
-
-                                    <label>Số tài khoản nhận tiền</label>
-                                    <input type="text" name="bankAccount" required>
-
-                                    <div class="return-actions">
-
-                                        <button type="button" onclick="closeReturnModal()" class="return-cancel">
-                                            Hủy
-                                        </button>
-
-                                        <button type="submit" class="return-submit">
-                                            Gửi yêu cầu
-                                        </button>
-
-                                    </div>
-                                </form>
+                                        <div style="text-align: right;">
+                                            <button type="button" onclick="closeReturnModal('${o.id}')"
+                                                    style="padding: 8px 15px; background: #eee; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">
+                                                Đóng
+                                            </button>
+                                            <button type="submit"
+                                                    style="padding: 8px 15px; background: #6F4E37; color: white; border: none; border-radius: 5px; cursor: pointer;"
+                                                    onclick="return confirm('Gửi yêu cầu hoàn hàng cho admin xử lý?');">
+                                                Gửi yêu cầu
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </c:forEach>
@@ -389,6 +396,44 @@
 <jsp:include page="/user/footer.jsp"/>
 <script src="${pageContext.request.contextPath}/user/js/account.js"></script>
 
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const pages = document.querySelectorAll(".page");
+        const menuItems = document.querySelectorAll(".menu-account li[data-target]");
+
+        function showPage(selector) {
+            pages.forEach((p) => p.classList.remove("active"));
+            const page = document.querySelector(selector);
+            if (page) page.classList.add("active");
+        }
+
+        menuItems.forEach((item) => {
+            item.addEventListener("click", () => {
+                menuItems.forEach((i) => i.classList.remove("active"));
+                item.classList.add("active");
+
+                const target = item.getAttribute("data-target");
+                if (target) showPage(target);
+            });
+        });
+
+        document.querySelectorAll(".menu-account .has-submenu").forEach((parent) => {
+            parent.addEventListener("mouseenter", () => parent.classList.add("open"));
+            parent.addEventListener("mouseleave", () => parent.classList.remove("open"));
+        });
+    });
+
+    function openReturnModal(orderId) {
+        const modal = document.getElementById("return-modal-" + orderId);
+        if (modal) modal.style.display = "block";
+    }
+
+    function closeReturnModal(orderId) {
+        const modal = document.getElementById("return-modal-" + orderId);
+        if (modal) modal.style.display = "none";
+    }
+</script>
 
 </body>
 </html>

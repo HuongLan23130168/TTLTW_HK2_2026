@@ -49,4 +49,7 @@ public class OrderStatusHistory {
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
     }
+
+  
+    
 }
