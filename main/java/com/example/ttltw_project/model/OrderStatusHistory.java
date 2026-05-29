@@ -50,21 +50,6 @@ public class OrderStatusHistory {
         this.createdAt = createdAt;
     }
 
-   public String getReturnStatus() {
-        return returnStatus;
-    }
-
-    public void setReturnStatus(String returnStatus) {
-        this.returnStatus = returnStatus;
-    }
-
-    public boolean isReturnEligible() {
-        return returnEligible;
-    }
-
-    public void setReturnEligible(boolean returnEligible) {
-        this.returnEligible = returnEligible;
-    }
-
+  
     
 }
