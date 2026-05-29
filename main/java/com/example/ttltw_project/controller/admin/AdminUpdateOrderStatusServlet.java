@@ -19,7 +19,6 @@ public class AdminUpdateOrderStatusServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
 
-        HttpSession session = request.getSession();
         try {
             String orderIdStr = request.getParameter("orderId");
             String currentStatus = request.getParameter("currentStatus");
@@ -30,38 +29,29 @@ public class AdminUpdateOrderStatusServlet extends HttpServlet {
             }
 
             int orderId = Integer.parseInt(orderIdStr);
-            String newStatus = "";
-            String newShippingStatus = "";
-            String note = "";
+            Order order = orderDAO.getOrderById(orderId);
 
-            // xác nhận đã giao đon hangf cho đơn vị vận chuyển
-            if (currentStatus.equalsIgnoreCase("Chờ xử lý")) {
-                newStatus = "Đã xác nhận - Giao vận chuyển";
-                newShippingStatus = "Đã giao cho đơn vị vận chuyển";
-                note = "Admin đã xác nhận đơn hàng và chuyển cho đơn vị vận chuyển";
-            } else {
-                response.sendRedirect(request.getContextPath() + "/admin/orders?msg=cannot_change");
+            if (order == null) {
+                response.sendRedirect(request.getContextPath() + "/admin/orders?error=order_not_found");
                 return;
             }
 
-            // method cho 4 trạng thái
-            boolean success = orderDAO.updateOrderStatus(orderId, newStatus, note, newShippingStatus);
+            if (currentStatus.equalsIgnoreCase("Chờ xử lý")) {
+                String newStatus = "Đã xác nhận - Giao vận chuyển";
+                String newShippingStatus = "Đã giao cho đơn vị vận chuyển";
+                String note = "Admin đã xác nhận đơn hàng";
 
-            if (success) {
-                NotificationService notificationService = new NotificationService();
-                Order order = orderDAO.getOrderById(orderId);
-                if (order != null) {
+                boolean success = orderDAO.updateOrderStatus(orderId, newStatus, note, newShippingStatus);
+
+                if (success) {
+                    NotificationService notificationService = new NotificationService();
                     notificationService.notifyOrderUpdate(order, newStatus);
-                }
-
-                String referer = request.getHeader("Referer");
-                if (referer != null && referer.contains("viewOrder")) {
-                    response.sendRedirect(request.getContextPath() + "/admin/viewOrder?orderId=" + orderId + "&msg=success");
+                    response.sendRedirect(request.getContextPath() + "/admin/viewOrder?orderId=" + orderId + "&msg=confirmed");
                 } else {
-                    response.sendRedirect(request.getContextPath() + "/admin/orders?msg=success");
+                    response.sendRedirect(request.getContextPath() + "/admin/viewOrder?orderId=" + orderId + "&error=update_failed");
                 }
             } else {
-                response.sendRedirect(request.getContextPath() + "/admin/orders?error=failed");
+                response.sendRedirect(request.getContextPath() + "/admin/orders?msg=cannot_change");
             }
 
         } catch (Exception e) {

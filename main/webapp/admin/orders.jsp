@@ -1,7 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ include file="/common/taglibs.jsp" %>
+
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -13,6 +12,8 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/css/style.css"/>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/css/orders.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="${pageContext.request.contextPath}/favicon.ico">
+
 
 
     <style>
@@ -166,6 +167,15 @@
                     <td>
                         <c:set var="lowerStatus" value="${fn:toLowerCase(order.status)}"/>
                         <c:choose>
+                            <c:when test="${order.returnStatus == 'PENDING'}">
+                                <span class="status status-pending">Yêu cầu hoàn hàng</span>
+                            </c:when>
+                            <c:when test="${order.returnStatus == 'APPROVED'}">
+                                <span class="status status-cancelled">Đã hoàn</span>
+                            </c:when>
+                            <c:when test="${order.returnStatus == 'REJECTED'}">
+                                <span class="status status-completed">Không hoàn</span>
+                            </c:when>
                             <c:when test="${fn:contains(lowerStatus, 'hoàn thành') or fn:contains(lowerStatus, 'đã giao')}">
                                 <span class="status status-completed">${order.status}</span>
                             </c:when>
@@ -191,7 +201,7 @@
     </div>
 </main>
 
-<script src="${pageContext.request.contextPath}/admin/js/main.js"></script>
+<script src="${pageContext.request.contextPath}/admin/js/contact.js"></script>
 </body>
 
 </html>
