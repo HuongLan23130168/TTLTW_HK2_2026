@@ -1,0 +1,115 @@
+package com.example.ttltw_project.controller.user;
+
+import com.example.ttltw_project.config.GoogleOAuthConfig;
+import com.example.ttltw_project.dao.user.UserDAO;
+import com.example.ttltw_project.model.user.User;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+
+@WebServlet(name = "GoogleCallbackServlet", value = "/callback-google")
+public class GoogleCallbackServlet extends HttpServlet {
+
+    private Set<String> adminWhitelist = new HashSet<>();
+
+    @Override
+    public void init() {
+        adminWhitelist.add("23130168@st.hcmuaf.edu.vn");
+        adminWhitelist.add("23130204@st.hcmuaf.edu.vn");
+        adminWhitelist.add("23130377@st.hcmuaf.edu.vn");
+        System.out.println("Admin whitelist loaded");
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+
+        String code = request.getParameter("code");
+        String error = request.getParameter("error");
+
+        if (error != null) {
+            response.sendRedirect(request.getContextPath() + "/user/login.jsp?error=google_auth_failed");
+            return;
+        }
+
+        if (code == null) {
+            response.sendRedirect(request.getContextPath() + "/user/login.jsp?error=missing_code");
+            return;
+        }
+
+        try {
+            GoogleIdToken idToken = GoogleOAuthConfig.exchangeCodeForToken(code);
+
+            if (idToken == null) {
+                response.sendRedirect(request.getContextPath() + "/user/login.jsp?error=invalid_token");
+                return;
+            }
+
+            GoogleIdToken.Payload payload = idToken.getPayload();
+
+            String email = payload.getEmail();
+            String fullName = (String) payload.get("name");
+            String googleId = payload.getSubject();
+
+            boolean isWhitelistedAdmin = adminWhitelist.contains(email);
+
+            UserDAO dao = new UserDAO();
+            User existingUser = dao.getUserByEmail(email);
+
+            User userToLogin = null;
+
+            if (existingUser != null) {
+                if (isWhitelistedAdmin && existingUser.getRole() != 2) {
+                    dao.updateUserRole(email, 2);
+                    existingUser.setRole(2);
+                }
+
+                if (existingUser.getGoogleId() == null) {
+                    dao.linkGoogleAccount(email, googleId);
+                }
+
+                userToLogin = existingUser;
+
+            } else {
+                int role = isWhitelistedAdmin ? 2 : 1;
+                boolean registered = dao.registerWithGoogle(email, fullName, googleId, role);
+
+                if (registered) {
+                    userToLogin = dao.getUserByEmail(email);
+                } else {
+                    response.sendRedirect(request.getContextPath() + "/user/login.jsp?error=register_failed");
+                    return;
+                }
+            }
+
+            HttpSession oldSession = request.getSession(false);
+            if (oldSession != null) {
+                oldSession.invalidate();
+            }
+
+            HttpSession newSession = request.getSession(true);
+            newSession.setAttribute("acc", userToLogin);
+
+            if (userToLogin.getRole() == 2) {
+                response.sendRedirect(request.getContextPath() + "/admin/admin-dashboard");
+            } else {
+                response.sendRedirect(request.getContextPath() + "/home");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendRedirect(request.getContextPath() + "/user/login.jsp?error=google_error");
+        }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    }
+}

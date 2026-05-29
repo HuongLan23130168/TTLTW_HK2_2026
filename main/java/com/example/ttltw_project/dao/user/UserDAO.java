@@ -8,14 +8,17 @@ import java.util.List;
 public class UserDAO {
     private Jdbi jdbi = DBDAO.get();
 
-    public boolean register(String name, String email, String hashedPass) {
+    public boolean register(String name, String email, String rawPassword) {
         try {
+            String hashedPass = EncryptionUtils.hashPassword(rawPassword);
             return jdbi.withHandle(handle ->
-                    handle.createUpdate("INSERT INTO users (full_name, email, password, role) VALUES (:name, :email, :pass, :role)")
+                    handle.createUpdate("""
+                        INSERT INTO users (full_name, email, password, role, provider, status) 
+                        VALUES (:name, :email, :pass, 1, 'local', 0)
+                        """)
                             .bind("name", name)
                             .bind("email", email)
                             .bind("pass", hashedPass)
-                            .bind("role", "1")
                             .execute() > 0
             );
         } catch (Exception e) {
@@ -24,19 +27,43 @@ public class UserDAO {
         }
     }
 
-    public User login(String email, String hashedPass) {
-        return jdbi.withHandle(handle ->
-                handle.createQuery("SELECT * FROM users WHERE email = :email AND password = :pass")
+    public User login(String email, String rawPassword) {
+        User user = jdbi.withHandle(handle ->
+                handle.createQuery("SELECT * FROM users WHERE email = :email AND status = 1")
                         .bind("email", email)
-                        .bind("pass", hashedPass)
-                        .mapToBean(User.class).findFirst().orElse(null)
+                        .mapToBean(User.class)
+                        .findFirst()
+                        .orElse(null)
         );
+        if (user == null) return null;
+        String storedPassword = user.getPassword();
+        if (storedPassword == null) return null;
+        if (EncryptionUtils.verifyPassword(rawPassword, storedPassword)) {
+            return user;
+        }
+        String oldMd5Hash = EncryptionUtils.hashMD5(rawPassword);
+        if (oldMd5Hash != null && oldMd5Hash.equals(storedPassword)) {
+            String newBcryptHash = EncryptionUtils.hashPassword(rawPassword);
+            jdbi.useHandle(handle ->
+                    handle.createUpdate("UPDATE users SET password = :newPass WHERE email = :email")
+                            .bind("newPass", newBcryptHash)
+                            .bind("email", email)
+                            .execute()
+            );
+            return user;
+        }
+        return null;
     }
 
-    public void updateToken(String email, String token) {
+   public void updateToken(String email, String token) {
         jdbi.useHandle(handle ->
-                handle.createUpdate("UPDATE users SET token = :token, token_expiry = DATE_ADD(NOW(), INTERVAL 15 MINUTE) WHERE email = :email")
-                        .bind("token", token).bind("email", email).execute()
+                handle.createUpdate("""
+                    UPDATE users SET token = :token, token_expiry = DATE_ADD(NOW(), INTERVAL 15 MINUTE) 
+                    WHERE email = :email
+                    """)
+                        .bind("token", token)
+                        .bind("email", email)
+                        .execute()
         );
     }
 
@@ -50,8 +77,12 @@ public class UserDAO {
         );
     }
 
-    public void clearToken(String email) {
-        jdbi.useHandle(handle -> handle.createUpdate("UPDATE users SET token = NULL WHERE email = :email").bind("email", email).execute());
+    public void clearResetToken(String email) {
+        jdbi.useHandle(handle ->
+                handle.createUpdate("UPDATE users SET reset_token = NULL, reset_expiry = NULL WHERE email = :email")
+                        .bind("email", email)
+                        .execute()
+        );
     }
 
     public boolean checkEmailExists(String email) {
@@ -63,9 +94,9 @@ public class UserDAO {
         );
     }
 
-
-    public boolean updatePassword(String email, String hashedPass) {
+    public boolean updatePassword(String email, String rawPassword) {
         try {
+            String hashedPass = EncryptionUtils.hashPassword(rawPassword);
             return jdbi.withHandle(handle ->
                     handle.createUpdate("UPDATE users SET password = :pass WHERE email = :email")
                             .bind("pass", hashedPass)
@@ -86,11 +117,13 @@ public class UserDAO {
         );
     }
 
-    public boolean updateAdminProfile(String email, String fullName, String phone, String address) {
+    public boolean updateAdminProfile(String email, String fullName, String birth, String gender, String phone, String address) {
         try {
             return jdbi.withHandle(handle ->
-                    handle.createUpdate("UPDATE users SET full_name = :name, phone = :phone, address = :addr WHERE email = :email")
+                    handle.createUpdate("UPDATE users SET full_name = :name, birth = :birth, gender = :gender, phone = :phone, address = :addr WHERE email = :email")
                             .bind("name", fullName)
+                            .bind("birth", birth)
+                            .bind("gender", gender)
                             .bind("phone", phone)
                             .bind("addr", address)
                             .bind("email", email)
@@ -129,10 +162,10 @@ public class UserDAO {
 
     public User getUserByEmail(String email) {
         return jdbi.withHandle(handle ->
-                handle.createQuery("SELECT id, fullName, email, role FROM users WHERE email = :email")
+                handle.createQuery("SELECT * FROM users WHERE email = :email")
                         .bind("email", email)
                         .mapToBean(User.class)
-                        .findOne()
+                        .findFirst()
                         .orElse(null)
         );
     }
@@ -148,9 +181,14 @@ public class UserDAO {
             e.printStackTrace();
             return false;
         }
-    }public void updateResetToken(String email, String token) {
+    }
+    
+    public void updateResetToken(String email, String token) {
         jdbi.useHandle(handle ->
-                handle.createUpdate("UPDATE users SET reset_token = :token, reset_expiry = DATE_ADD(NOW(), INTERVAL 15 MINUTE) WHERE email = :email")
+                handle.createUpdate("""
+                    UPDATE users SET reset_token = :token, reset_expiry = DATE_ADD(NOW(), INTERVAL 15 MINUTE) 
+                    WHERE email = :email
+                    """)
                         .bind("token", token)
                         .bind("email", email)
                         .execute()
@@ -176,12 +214,64 @@ public class UserDAO {
         );
     }
 
-    public void clearResetToken(String email) {
-        jdbi.useHandle(handle ->
-                handle.createUpdate("UPDATE users SET reset_token = NULL, reset_expiry = NULL WHERE email = :email")
-                        .bind("email", email)
-                        .execute()
+    public User getUserByGoogleId(String googleId) {
+        return jdbi.withHandle(handle ->
+                handle.createQuery("SELECT * FROM users WHERE google_id = :googleId")
+                        .bind("googleId", googleId)
+                        .mapToBean(User.class)
+                        .findFirst()
+                        .orElse(null)
         );
     }
 
+    public boolean registerWithGoogle(String email, String fullName, String googleId, int role) {
+        try {
+            return jdbi.withHandle(handle ->
+                    handle.createUpdate("""
+                        INSERT INTO users (email, full_name, google_id, provider, status, role, created_at) 
+                        VALUES (:email, :name, :googleId, 'google', 1, :role, NOW())
+                        """)
+                            .bind("email", email)
+                            .bind("name", fullName != null ? fullName : email.split("@")[0])
+                            .bind("googleId", googleId)
+                            .bind("role", role)
+                            .execute() > 0
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean linkGoogleAccount(String email, String googleId) {
+        try {
+            return jdbi.withHandle(handle ->
+                    handle.createUpdate("""
+                        UPDATE users SET google_id = :googleId, provider = 'both' 
+                        WHERE email = :email
+                        """)
+                            .bind("googleId", googleId)
+                            .bind("email", email)
+                            .execute() > 0
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean updateUserRole(String email, int newRole) {
+        try {
+            return jdbi.withHandle(handle ->
+                    handle.createUpdate("UPDATE users SET role = :role WHERE email = :email")
+                            .bind("role", newRole)
+                            .bind("email", email)
+                            .execute() > 0
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
 }

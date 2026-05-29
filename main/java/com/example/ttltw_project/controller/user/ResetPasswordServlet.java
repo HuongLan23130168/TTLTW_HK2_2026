@@ -43,7 +43,7 @@ public class ResetPasswordServlet extends HttpServlet {
         }
 
         if (email != null) {
-            String hashPassword = hashMD5(newPass);
+            String hashPassword = EncryptionUtils.hashPassword(newPass);
             boolean success = dao.updatePassword(email, hashPassword);
 
             if (success) {

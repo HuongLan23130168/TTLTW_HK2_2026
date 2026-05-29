@@ -13,6 +13,25 @@
 
 
 }
+.breadcrumb {
+    margin-bottom: 20px;
+    font-size: 14px;
+    color: var(--text-light, #888);
+    padding: 5px 0;
+}
+.breadcrumb a {
+    text-decoration: none;
+    color: var(--text-main, #495057);
+}
+.breadcrumb a:hover {
+    color: var(--primary-brown, #74512d);
+    text-decoration: underline;
+}
+.breadcrumb .current {
+    color: var(--primary-brown, #74512d);
+    font-weight: 700;
+    margin-left: 5px;
+}
 
 .form-card {
     background: #fff;

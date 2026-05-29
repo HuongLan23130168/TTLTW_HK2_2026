@@ -1,0 +1,20 @@
+package com.example.ttltw_project.controller.user;
+
+import com.example.ttltw_project.config.GoogleOAuthConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+
+@WebServlet(name = "GoogleLoginServlet", value = "/login-google")
+public class GoogleLoginServlet extends HttpServlet {
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String redirectUrl = GoogleOAuthConfig.getAuthorizationUrl();
+        response.sendRedirect(redirectUrl);
+    }
+}
