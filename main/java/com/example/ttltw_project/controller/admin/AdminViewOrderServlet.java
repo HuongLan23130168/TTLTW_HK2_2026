@@ -15,10 +15,25 @@ import java.util.List;
 
 @WebServlet(name = "ViewOrderServlet", value = "/admin/viewOrder")
 public class AdminViewOrderServlet extends HttpServlet {
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+        HttpSession session = request.getSession();
+        User user = (User) session.getAttribute("acc");
+
+        if (user == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
+        if (user.getRole() != 2) { // role 2 là admin
+            response.sendRedirect(request.getContextPath() + "/admin/admin-dashboard");
+            return;
+        }
+
         String orderIdParam = request.getParameter("orderId");
-        if (orderIdParam == null) {
+        if (orderIdParam == null || orderIdParam.isEmpty()) {
             response.sendRedirect(request.getContextPath() + "/admin/orders");
             return;
         }
@@ -28,14 +43,15 @@ public class AdminViewOrderServlet extends HttpServlet {
             OrderDAO orderDAO = new OrderDAO();
             AdminCustomerDAO customerDAO = new AdminCustomerDAO();
 
-               Order order = orderDAO.getOrderById(orderId);
+            Order order = orderDAO.getOrderById(orderId);
 
-              if (order == null) {
-                request.getSession().setAttribute("errorMessage", "Không tìm thấy đơn hàng với ID: " + orderId);
+            if (order == null) {
+                session.setAttribute("errorMessage", "Không tìm thấy đơn hàng với ID: " + orderId);
                 response.sendRedirect(request.getContextPath() + "/admin/orders");
                 return;
             }
 
+            // Lấy thông tin khách hàng
             User customer = customerDAO.getCustomerById(order.getUserId());
             if (customer != null) {
                 order.setCustomerName(customer.getFullName());
@@ -43,16 +59,14 @@ public class AdminViewOrderServlet extends HttpServlet {
                 order.setCustomerPhone(customer.getPhone());
             } else {
                 order.setCustomerName(order.getRecipientName());
-                order.setCustomerEmail("Không có");
+                order.setCustomerEmail("Không có email");
                 order.setCustomerPhone(order.getRecipientPhone());
             }
+
+            // Địa chỉ giao hàng
             order.setCustomerAddress(order.getShippingAddress());
 
-            order.setPaymentMethod("Không xác định");
-
-
             List<OrderItem> orderItems = orderDAO.getOrderItemsByOrderId(orderId);
-
 
             request.setAttribute("order", order);
             request.setAttribute("orderItems", orderItems);
@@ -62,12 +76,5 @@ public class AdminViewOrderServlet extends HttpServlet {
         } catch (NumberFormatException e) {
             response.sendRedirect(request.getContextPath() + "/admin/orders");
         }
-
     }
-
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-    }
-
 }
