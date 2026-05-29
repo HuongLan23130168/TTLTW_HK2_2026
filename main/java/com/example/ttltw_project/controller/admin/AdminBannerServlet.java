@@ -2,9 +2,13 @@ package com.example.ttltw_project.controller.admin;
 
 import com.example.ttltw_project.dao.admin.AdminBannerDAO;
 import com.example.ttltw_project.model.admin.Banner;
-import jakarta.servlet.*;
-import jakarta.servlet.http.*;
-import jakarta.servlet.annotation.*;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,9 +47,11 @@ public class AdminBannerServlet extends HttpServlet {
             handleDeleteBanner(req, resp);
         } else if ("update".equals(action)) {
             handleUpdateBanner(req, resp);
-        } else if ("restore".equals(action)) { // <--- Thêm cái này
+        } else if ("restore".equals(action)) {
             int id = Integer.parseInt(req.getParameter("id"));
             bannerDAO.restoreBanner(id);
+            req.getSession().setAttribute("toastMessage", "Đã khôi phục hiển thị banner thành công!");
+            req.getSession().setAttribute("toastType", "success");
             resp.sendRedirect(req.getContextPath() + "/admin/banners");
         }
     }
@@ -68,75 +74,94 @@ public class AdminBannerServlet extends HttpServlet {
     }
 
     private void handleAddBanner(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String uploadFilePath = getUploadPath(req);
-
         String title = req.getParameter("title");
         String description = req.getParameter("description");
         String link = req.getParameter("link");
-        int displayOrder = Integer.parseInt(req.getParameter("display_order"));
-        boolean isActive = "true".equals(req.getParameter("is_active"));
 
+        String displayOrderParam = req.getParameter("display_order");
+        int displayOrder = 1;
+        if (displayOrderParam != null && !displayOrderParam.trim().isEmpty()) {
+            try {
+                displayOrder = Integer.parseInt(displayOrderParam.trim());
+            } catch (NumberFormatException e) {
+                displayOrder = 1;
+            }
+        }
+
+        String isActiveParam = req.getParameter("is_active");
+
+        boolean isActive = (isActiveParam == null) || "true".equalsIgnoreCase(isActiveParam.trim());
 
         String subTitle = req.getParameter("sub_title");
         String subDescription = req.getParameter("sub_description");
 
-        Part mainFilePart = req.getPart("image_file");
-        String dbImageUrl = saveFile(mainFilePart, uploadFilePath);
-
-        Part subFilePart = req.getPart("sub_image_file");
-        String dbSubImageUrl = saveFile(subFilePart, uploadFilePath);
+        String dbImageUrl = req.getParameter("image_url");
+        String dbSubImageUrl = req.getParameter("sub_image_url");
 
         Banner newBanner = new Banner();
         newBanner.setTitle(title);
         newBanner.setDescription(description);
-        newBanner.setImage_url(dbImageUrl);
-        newBanner.setLink(link);
+        newBanner.setImage_url(dbImageUrl != null ? dbImageUrl.trim() : "");
+        newBanner.setLink(link != null ? link.trim() : "");
         newBanner.setDisplay_order(displayOrder);
         newBanner.setIs_active(isActive);
 
-        newBanner.setSub_image_url(dbSubImageUrl);
+        newBanner.setSub_image_url(dbSubImageUrl != null ? dbSubImageUrl.trim() : "");
         newBanner.setSub_title(subTitle);
         newBanner.setSub_description(subDescription);
+
+        req.getSession().setAttribute("toastMessage", "Thêm thiết lập banner mới thành công!");
+        req.getSession().setAttribute("toastType", "success");
 
         bannerDAO.addBanner(newBanner);
         resp.sendRedirect(req.getContextPath() + "/admin/banners");
     }
 
     private void handleUpdateBanner(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        int id = Integer.parseInt(req.getParameter("id"));
+        String idParam = req.getParameter("id");
+        int id = 0;
+        if (idParam != null && !idParam.trim().isEmpty()) {
+            id = Integer.parseInt(idParam.trim());
+        }
+
         String title = req.getParameter("title");
         String description = req.getParameter("description");
         String link = req.getParameter("link");
-        int displayOrder = Integer.parseInt(req.getParameter("display_order"));
-        boolean isActive = "true".equals(req.getParameter("is_active"));
+
+        String displayOrderParam = req.getParameter("display_order");
+        int displayOrder = 1;
+        if (displayOrderParam != null && !displayOrderParam.trim().isEmpty()) {
+            try {
+                displayOrder = Integer.parseInt(displayOrderParam.trim());
+            } catch (NumberFormatException e) {
+                displayOrder = 1;
+            }
+        }
+
+        String isActiveParam = req.getParameter("is_active");
+        boolean isActive = (isActiveParam == null) || "true".equalsIgnoreCase(isActiveParam.trim());
 
         String subTitle = req.getParameter("sub_title");
         String subDescription = req.getParameter("sub_description");
 
-        String dbImageUrl = req.getParameter("existing_image_url");
-        Part mainFilePart = req.getPart("image_file");
-        if (mainFilePart != null && mainFilePart.getSize() > 0) {
-            dbImageUrl = saveFile(mainFilePart, getUploadPath(req));
-        }
-
-        String dbSubImageUrl = req.getParameter("existing_sub_image_url");
-        Part subFilePart = req.getPart("sub_image_file");
-        if (subFilePart != null && subFilePart.getSize() > 0) {
-            dbSubImageUrl = saveFile(subFilePart, getUploadPath(req));
-        }
+        String dbImageUrl = req.getParameter("image_url");
+        String dbSubImageUrl = req.getParameter("sub_image_url");
 
         Banner banner = new Banner();
         banner.setId(id);
         banner.setTitle(title);
         banner.setDescription(description);
-        banner.setImage_url(dbImageUrl);
-        banner.setLink(link);
+        banner.setImage_url(dbImageUrl != null ? dbImageUrl.trim() : "");
+        banner.setLink(link != null ? link.trim() : "");
         banner.setDisplay_order(displayOrder);
         banner.setIs_active(isActive);
 
-        banner.setSub_image_url(dbSubImageUrl);
+        banner.setSub_image_url(dbSubImageUrl != null ? dbSubImageUrl.trim() : "");
         banner.setSub_title(subTitle);
         banner.setSub_description(subDescription);
+
+        req.getSession().setAttribute("toastMessage", "Cập nhật thông tin banner thành công!");
+        req.getSession().setAttribute("toastType", "success");
 
         bannerDAO.updateBanner(banner);
         resp.sendRedirect(req.getContextPath() + "/admin/banners");
@@ -146,6 +171,8 @@ public class AdminBannerServlet extends HttpServlet {
         try {
             int id = Integer.parseInt(req.getParameter("id"));
             bannerDAO.deleteBanner(id);
+            req.getSession().setAttribute("toastMessage", "Đã chuyển banner sang trạng thái Tạm ẩn thành công!");
+            req.getSession().setAttribute("toastType", "success");
         } catch (NumberFormatException e) {
             e.printStackTrace();
         }
