@@ -23,7 +23,7 @@ public class ShippingWebhookServlet extends HttpServlet {
         response.setContentType("application/json;charset=UTF-8");
 
         try {
-            // Body request Lấy dl để tạo ra checking number
+            // Đọc body request
             StringBuilder sb = new StringBuilder();
             String line;
             try (BufferedReader reader = request.getReader()) {
@@ -37,7 +37,7 @@ public class ShippingWebhookServlet extends HttpServlet {
 
             Map<String, Object> data = gson.fromJson(body, Map.class);
 
-            // Lấy dữ liệu theo api của dvvc
+            // Lấy dữ liệu
             String orderCode = (String) data.get("order_code");
             String shippingStatus = (String) data.get("status");
             String trackingNumber = (String) data.get("tracking_number");
@@ -66,9 +66,10 @@ public class ShippingWebhookServlet extends HttpServlet {
         }
     }
 
+    // GHN webhook mẫu
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Test webhook
+
         response.getWriter().write("Webhook endpoint is running");
     }
 }
