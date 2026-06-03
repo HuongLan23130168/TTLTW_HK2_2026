@@ -6,11 +6,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hướng dẫn chuyển khoản - Nobile Loft Theory</title>
+    <title>Thanh toán chuyển khoản - Nobile Loft Theory</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/header.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/footer.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <link rel="icon" type="image/x-icon" href="${pageContext.request.contextPath}/favicon.ico">
     <style>
         .bank-container {
             max-width: 700px;
@@ -21,20 +21,33 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
             text-align: center;
         }
-        .success-icon {
-            font-size: 70px;
-            color: #28a745;
-            margin-bottom: 20px;
-        }
+        .success-icon { font-size: 70px; color: #ECB176; margin-bottom: 20px; }
         .order-code {
             background: #f5f5f5;
             padding: 15px;
             border-radius: 10px;
-            font-size: 24px;
+            font-size: 22px;
             font-weight: bold;
             letter-spacing: 2px;
             color: #d40004;
             margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .amount {
+            font-size: 26px;
+            font-weight: bold;
+            color: #d40004;
+            text-align: center;
+            margin: 10px 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
         }
         .bank-info {
             background: #f8f9fa;
@@ -44,99 +57,75 @@
             margin: 20px 0;
             border-left: 4px solid #74512D;
         }
-        .bank-info p {
-            margin: 10px 0;
-        }
-        .bank-info strong {
-            display: inline-block;
-            width: 120px;
-        }
-        .amount {
-            font-size: 28px;
-            font-weight: bold;
-            color: #d40004;
-            text-align: center;
-            margin: 20px 0;
-        }
-        .qr-section {
-            margin: 25px 0;
-            padding: 20px;
-            background: #fff;
-            border: 2px dashed #74512D;
-            border-radius: 12px;
-            text-align: center;
-        }
-        .qr-title {
-            font-weight: bold;
-            margin-bottom: 15px;
-            color: #74512D;
-        }
-        #qrcode {
-            display: flex;
-            justify-content: center;
-            margin: 15px 0;
-        }
-        #qrcode img {
-            width: 200px;
-            height: 200px;
-            border: 1px solid #ddd;
-            border-radius: 12px;
-            padding: 10px;
-            background: white;
-        }
-        .copy-btn {
-            background: #74512D;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            margin-left: 10px;
-            font-size: 12px;
-        }
-        .copy-btn:hover {
-            background: #5a3a1f;
-        }
+        .bank-info h4 { margin: 0 0 14px; color: #74512D; }
         .bank-number {
             display: flex;
             align-items: center;
             justify-content: space-between;
             background: #e9ecef;
-            padding: 8px 12px;
+            padding: 9px 12px;
             border-radius: 8px;
-            margin: 10px 0;
+            margin: 8px 0;
+            font-size: 14px;
+            gap: 8px;
         }
+        .bank-number span { flex: 1; }
+        .copy-btn {
+            background: #74512D;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .copy-btn:hover { background: #5a3a1f; }
+        .copy-btn.copied { background: #28a745; }
+
+        .qr-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px dashed #74512D;
+            border-radius: 12px;
+        }
+        .qr-section img {
+            width: 220px;
+            height: 220px;
+            border-radius: 10px;
+            border: 1px solid #eee;
+            background: white;
+        }
+        .qr-caption { font-size: 12px; color: #888; margin-top: 8px; }
+
         .note {
             background: #fff3cd;
-            padding: 12px;
+            padding: 12px 16px;
             border-radius: 8px;
             color: #856404;
             font-size: 13px;
             margin-top: 20px;
+            text-align: left;
+            line-height: 1.6;
         }
-        .btn-continue {
-            display: inline-block;
-            background: #74512D;
+        .btn-confirm {
+            display: block;
+            background: #28a745;
             color: white;
-            padding: 12px 30px;
+            padding: 14px;
+            border: none;
             border-radius: 8px;
-            text-decoration: none;
-            margin-top: 20px;
-            transition: background 0.3s;
-        }
-        .btn-continue:hover {
-            background: #5a3a1f;
-        }
-        .btn-order {
-            display: inline-block;
-            background: #6c757d;
-            color: white;
-            padding: 12px 30px;
-            border-radius: 8px;
-            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
             margin-top: 10px;
-            margin-left: 10px;
+            transition: background .2s;
         }
+        .btn-confirm:hover { background: #1e7e34; }
+        .confirm-note { font-size: 12px; color: #666; margin-top: 6px; text-align: center; }
+
         .progress {
             display: flex;
             justify-content: center;
@@ -149,17 +138,9 @@
             font-weight: 600;
             color: #999;
             background: #fff;
-            border: 2px solid;
+            border: 2px solid #ddd;
         }
-        .step.active {
-            color: #fff;
-            background-color: #ECB176;
-        }
-        .flex-between {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        .step.active { color: #fff; background-color: #ECB176; border-color: #ECB176; }
     </style>
 </head>
 <body>
@@ -178,92 +159,106 @@
     </div>
 
     <h2>ĐẶT HÀNG THÀNH CÔNG!</h2>
-    <p>Cảm ơn bạn đã đặt hàng tại Nobile Loft Theory</p>
+    <p>Vui lòng chuyển khoản để hoàn tất đơn hàng</p>
 
     <div class="order-code">
-        Mã đơn hàng: <strong>${orderCode}</strong>
-        <button class="copy-btn" onclick="copyToClipboard('${orderCode}')">
+        Mã đơn: <strong>${orderCode}</strong>
+        <button class="copy-btn" onclick="copyBtn(this, '${orderCode}')">
             <i class="fas fa-copy"></i> Sao chép
         </button>
     </div>
 
     <div class="amount">
-        Số tiền cần chuyển: <fmt:formatNumber value="${totalAmount}" pattern="#,###"/>₫
-        <button class="copy-btn" onclick="copyToClipboard('${totalAmount}')">
+        <fmt:formatNumber value="${totalAmount}" pattern="#,###"/>₫
+        <button class="copy-btn" onclick="copyBtn(this, '${totalAmount}')">
             <i class="fas fa-copy"></i> Sao chép
         </button>
     </div>
 
     <div class="qr-section">
-        <div class="qr-title">
+        <div style="font-weight:bold; color:#74512D; margin-bottom:12px;">
             <i class="fas fa-qrcode"></i> Quét mã QR để chuyển khoản
         </div>
-        <div id="qrcode"></div>
-        <p style="font-size: 12px; color: #888; margin-top: 10px;">
-            Mở ứng dụng ngân hàng và quét mã QR bên trên
-        </p>
+        <div id="qrcode-wrapper">
+            <img id="qr-img" src="" alt="QR chuyển khoản"
+                 onerror="this.src='https://placehold.co/220x220?text=QR+Error'"/>
+        </div>
+        <div class="qr-caption">
+            Quét bằng app ngân hàng bất kỳ (VCB, TPBank, MB, BIDV, Momo...)
+        </div>
     </div>
 
     <div class="bank-info">
         <h4><i class="fas fa-building-columns"></i> Thông tin chuyển khoản</h4>
         <div class="bank-number">
-            <span><strong>Ngân hàng:</strong> Vietcombank</span>
-            <button class="copy-btn" onclick="copyToClipboard('Vietcombank')">Sao chép</button>
+            <span><strong>Ngân hàng:</strong> TPBank</span>
+            <button class="copy-btn" onclick="copyBtn(this, 'TPBank')">Sao chép</button>
         </div>
         <div class="bank-number">
-            <span><strong>Số tài khoản:</strong> 123456789</span>
-            <button class="copy-btn" onclick="copyToClipboard('123456789')">Sao chép</button>
+            <span><strong>Số tài khoản:</strong> 80981182441</span>
+            <button class="copy-btn" onclick="copyBtn(this, '80981182441')">Sao chép</button>
         </div>
         <div class="bank-number">
             <span><strong>Chủ tài khoản:</strong> CÔNG TY TNHH NOBILE</span>
-            <button class="copy-btn" onclick="copyToClipboard('CÔNG TY TNHH NOBILE')">Sao chép</button>
+            <button class="copy-btn" onclick="copyBtn(this, 'CÔNG TY TNHH NOBILE')">Sao chép</button>
+        </div>
+        <div class="bank-number">
+            <span><strong>Số tiền:</strong> <fmt:formatNumber value="${totalAmount}" pattern="#,###"/>₫</span>
+            <button class="copy-btn" onclick="copyBtn(this, '${totalAmount}')">Sao chép</button>
         </div>
         <div class="bank-number">
             <span><strong>Nội dung:</strong> ${orderCode}</span>
-            <button class="copy-btn" onclick="copyToClipboard('${orderCode}')">Sao chép</button>
+            <button class="copy-btn" onclick="copyBtn(this, '${orderCode}')">Sao chép</button>
         </div>
     </div>
 
     <div class="note">
         <i class="fa-solid fa-circle-info"></i>
-        Đơn hàng sẽ được xử lý sau khi chúng tôi xác nhận thanh toán (trong vòng 24h).
-        Vui lòng chuyển khoản đúng số tiền và nội dung trên.
+        <strong>Lưu ý quan trọng:</strong><br>
+        • Chuyển khoản đúng <strong>số tiền</strong> và <strong>nội dung</strong> như trên.<br>
+        • Đơn hàng sẽ được xác nhận và xử lý sau khi chúng tôi nhận được thanh toán (trong vòng 24h).<br>
+        • Sau khi chuyển khoản, bấm nút bên dưới để thông báo cho chúng tôi.
     </div>
 
-    <div class="confirm-section" style="margin: 25px 0;">
-        <a href="${pageContext.request.contextPath}/order-completed?orderCode=${orderCode}"
-           class="btn-confirm"
-           style="background: #28a745; color: white; padding: 12px 30px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; text-decoration: none; display: block; text-align: center;">
-            <i class="fas fa-check-circle"></i> TÔI ĐÃ CHUYỂN KHOẢN
-        </a>
-        <p style="font-size: 12px; color: #666; margin-top: 8px; text-align: center;">
-            Sau khi chuyển khoản thành công, vui lòng bấm vào đây để xem đơn hàng
+    <div style="margin-top: 24px;">
+        <form action="${pageContext.request.contextPath}/confirm-bank-transfer" method="POST">
+            <input type="hidden" name="orderCode" value="${orderCode}">
+            <button type="submit" class="btn-confirm">
+                <i class="fas fa-check-circle"></i> TÔI ĐÃ CHUYỂN KHOẢN
+            </button>
+        </form>
+        <p class="confirm-note">
+            Bấm vào đây sau khi chuyển khoản thành công để chúng tôi ưu tiên xác nhận đơn của bạn
         </p>
     </div>
 </div>
 
 <script>
-    function copyToClipboard(text) {
-        navigator.clipboard.writeText(text).then(function() {
-            alert('Đã sao chép: ' + text);
-        }, function() {
-            alert('Không thể sao chép, vui lòng copy thủ công');
+    document.addEventListener('DOMContentLoaded', function () {
+        var amount    = '${totalAmount}'.replace(/[^0-9]/g, '') || '0';
+        var orderCode = '${orderCode}';
+
+        var qrUrl = 'https://img.vietqr.io/image/TPB-80981182441-compact2.png'
+            + '?amount=' + amount
+            + '&addInfo=' + encodeURIComponent(orderCode)
+            + '&accountName=' + encodeURIComponent('CONG TY TNHH NOBILE');
+
+        document.getElementById('qr-img').src = qrUrl;
+    });
+
+    function copyBtn(btn, text) {
+        navigator.clipboard.writeText(String(text)).then(function () {
+            var orig = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i> Đã sao chép';
+            btn.classList.add('copied');
+            setTimeout(function () {
+                btn.innerHTML = orig;
+                btn.classList.remove('copied');
+            }, 1800);
+        }, function () {
+            alert('Vui lòng copy thủ công: ' + text);
         });
     }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        var orderCode = '${orderCode}';
-        var amount = '${totalAmount}';
-
-        var amountValue = amount.replace(/[^0-9]/g, '');
-        if (!amountValue || amountValue === '') {
-            amountValue = '0';
-        }
-
-        var qrUrl = 'https://img.vietqr.io/image/VCB-123456789-compact.png?amount=' + amountValue + '&addInfo=' + encodeURIComponent(orderCode) + '&accountName=CONG%20TY%20TNHH%20NOBILE';
-
-        document.getElementById("qrcode").innerHTML = '<img src="' + qrUrl + '" width="200" height="200" style="border:1px solid #ddd; border-radius:12px; padding:10px; background:white;" onerror="this.src=\'https://placehold.co/200x200?text=QR+Error\'">';
-    });
 </script>
 
 <jsp:include page="/user/footer.jsp"/>

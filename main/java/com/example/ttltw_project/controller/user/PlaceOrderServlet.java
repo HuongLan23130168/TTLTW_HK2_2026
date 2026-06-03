@@ -21,6 +21,7 @@ import java.util.List;
 @WebServlet(name = "PlaceOrderServlet", value = "/place-order")
 public class PlaceOrderServlet extends HttpServlet {
     NotificationService notificationService = new NotificationService();
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
@@ -109,6 +110,57 @@ public class PlaceOrderServlet extends HttpServlet {
             }
 
             double total = items.stream().mapToDouble(CartItem::getTotalPrice).sum();
+            int totalWeight = calculateTotalWeight(items);
+            String normalizedCity = normalizeProvince(city);
+            boolean canUseExpress = normalizedCity.contains("Hồ Chí Minh");
+            if ("hỏa tốc".equals(shippingType) && !canUseExpress) {
+                response.sendRedirect(request.getContextPath() + "/checkout?error=express-not-eligible");
+                return;
+            }
+
+            Double standardShippingFee = GHTKProxyServlet.calculateFee(
+                    normalizeProvince("Hồ Chí Minh"),
+                    normalizeDistrict("Quận 9"),
+                    normalizedCity,
+                    normalizeDistrict(district),
+                    ward,
+                    detail,
+                    totalWeight,
+                    total,
+                    "road"
+            );
+
+            if (standardShippingFee == null) {
+                response.sendRedirect(request.getContextPath() + "/checkout?error=shipping-unavailable");
+                return;
+            }
+
+            Double verifiedShippingFee = standardShippingFee;
+            if ("hỏa tốc".equals(shippingType)) {
+                Double expressShippingFee = GHTKProxyServlet.calculateFee(
+                        normalizeProvince("Hồ Chí Minh"),
+                        normalizeDistrict("Quận 9"),
+                        normalizedCity,
+                        normalizeDistrict(district),
+                        ward,
+                        detail,
+                        totalWeight,
+                        total,
+                        "fly"
+                );
+
+                if (expressShippingFee == null) {
+                    response.sendRedirect(request.getContextPath() + "/checkout?error=shipping-unavailable");
+                    return;
+                }
+
+                verifiedShippingFee = Math.max(expressShippingFee, roundUpToThousand(standardShippingFee * 1.2));
+            }
+
+            if (Math.abs(verifiedShippingFee - shippingFee) > 1) {
+                shippingFee = verifiedShippingFee;
+            }
+
             System.out.println("TOTAL: " + total);
             System.out.println("SHIPPING FEE: " + shippingFee);
             System.out.println("CITY: " + city);
@@ -126,29 +178,84 @@ public class PlaceOrderServlet extends HttpServlet {
                 List<OrderItem> orderItems = orderDAO.getOrderItemsByOrderId(order.getId());
                 double actualTotal = orderItems.stream().mapToDouble(i -> (i.getPrice() * i.getQuantity()) * (1 - i.getDiscount() / 100.0)).sum();
 
-                request.setAttribute("orderItems", orderItems);
-                request.setAttribute("orderCode", orderCode);
-                request.setAttribute("orderName", name);
-                request.setAttribute("orderPhone", phone);
-                request.setAttribute("orderEmail", email);
-                request.setAttribute("orderAddress", address);
-                request.setAttribute("orderDate", new java.util.Date());
-                request.setAttribute("shippingType", shippingType);
-                request.setAttribute("shippingFee", shippingFee);
-                request.setAttribute("grandTotal", actualTotal + shippingFee);
-                request.setAttribute("paymentMethod", (paymentId == 1 ? "COD" : "Chuyển khoản"));
-                request.setAttribute("orderNote", note);
+                if (paymentId == 1) {
+                    if (!isBuyNow) {
+                        cartDAO.clearCart(user.getId());
+                    }
 
-                if (!isBuyNow) {
-                    cartDAO.clearCart(user.getId());
+                    request.setAttribute("orderItems", orderItems);
+                    request.setAttribute("orderCode", orderCode);
+                    request.setAttribute("orderName", name);
+                    request.setAttribute("orderPhone", phone);
+                    request.setAttribute("orderEmail", email);
+                    request.setAttribute("orderAddress", address);
+                    request.setAttribute("orderDate", new java.util.Date());
+                    request.setAttribute("shippingType", shippingType);
+                    request.setAttribute("shippingFee", shippingFee);
+                    request.setAttribute("grandTotal", actualTotal);
+                    request.setAttribute("paymentMethod", "COD");
+                    request.setAttribute("orderNote", note);
+
+                    request.getRequestDispatcher("/user/completed.jsp").forward(request, response);
+
+                } else {
+                    session.setAttribute("pendingOrderCode", orderCode);
+                    session.setAttribute("pendingOrderTotal", actualTotal + shippingFee);
+                    session.setAttribute("pendingOrderItems", orderItems);
+                    session.setAttribute("pendingOrderName", name);
+                    session.setAttribute("pendingOrderPhone", phone);
+                    session.setAttribute("pendingOrderEmail", email);
+                    session.setAttribute("pendingOrderAddress", address);
+                    session.setAttribute("pendingShippingFee", shippingFee);
+                    session.setAttribute("pendingShippingType", shippingType);
+                    session.setAttribute("pendingOrderNote", note);
+
+                    response.sendRedirect(request.getContextPath() + "/bank-transfer-instruction");
                 }
-                request.getRequestDispatcher("/user/completed.jsp").forward(request, response);
-            } else {
-                response.sendRedirect("checkout?error=1");
             }
         } catch (Exception e) {
             e.printStackTrace();
             response.getWriter().println("Lỗi chi tiết: " + e.getMessage());
         }
+    }
+
+    private int calculateTotalWeight(List<CartItem> items) {
+        CheckoutServlet checkoutServlet = new CheckoutServlet();
+        int totalWeight = 0;
+        for (CartItem item : items) {
+            int[] dims = checkoutServlet.estimateDimensions(item.getSize());
+            totalWeight += dims[0] * item.getQuantity();
+        }
+        if (totalWeight <= 0) return 1000;
+        return Math.min(totalWeight, 30_000);
+    }
+
+    private double roundUpToThousand(double value) {
+        return Math.ceil(value / 1000.0) * 1000;
+    }
+
+    private String normalizeProvince(String name) {
+        if (name == null) return "";
+        String trimmed = name.trim();
+        return switch (trimmed) {
+            case "Thành phố Hồ Chí Minh", "Hồ Chí Minh", "TP Hồ Chí Minh" -> "TP. Hồ Chí Minh";
+            case "Tỉnh Thừa Thiên Huế", "Thừa Thiên Huế" -> "Huế";
+            case "Thành phố Hà Nội" -> "Hà Nội";
+            default -> trimmed
+                    .replaceFirst("^Tỉnh\\s+", "")
+                    .replaceFirst("^Thành phố\\s+", "");
+        };
+    }
+
+    private String normalizeDistrict(String name) {
+        if (name == null) return "";
+        String trimmed = name.trim();
+        return switch (trimmed) {
+            case "Thủ Đức" -> "Thành phố Thủ Đức";
+            default -> trimmed
+                    .replaceFirst("^Huyện\\s+", "")
+                    .replaceFirst("^Thị xã\\s+", "")
+                    .replaceFirst("^Thành phố\\s+", "");
+        };
     }
 }

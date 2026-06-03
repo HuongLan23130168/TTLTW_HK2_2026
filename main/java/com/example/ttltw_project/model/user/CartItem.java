@@ -3,6 +3,7 @@ package com.example.ttltw_project.model.user;
 public class CartItem {
     private int detailId;
     private int variantId;
+    private int productId;
     private String productName;
     private String code;
     private String color;
@@ -16,9 +17,10 @@ public class CartItem {
     public CartItem() {
     }
 
-    public CartItem(int detailId, int variantId, String productName, String code, String color, String size, String imageUrl, double price, int quantity, int stock, double discountPercent) {
+    public CartItem(int detailId, int variantId, int productId, String productName, String code, String color, String size, String imageUrl, double price, int quantity, int stock, double discountPercent) {
         this.detailId = detailId;
         this.variantId = variantId;
+        this.productId = productId;
         this.productName = productName;
         this.code = code;
         this.color = color;
@@ -118,12 +120,17 @@ public class CartItem {
         this.discountPercent = discountPercent;
     }
 
-    // Giá cuối cùng của 1 product
+    public int getProductId() { return productId; }
+
+    public void setProductId(int productId) { this.productId = productId; }
+
     public double getFinalPrice() {
-        return price * (1 - discountPercent / 100);
+        if (discountPercent > 0 && discountPercent <= 100) {
+            return Math.round(price * (1 - discountPercent / 100.0));
+        }
+        return price;
     }
 
-    // Tổng tiền
     public double getTotalPrice() {
         return getFinalPrice() * quantity;
     }
