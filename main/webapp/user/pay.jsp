@@ -245,7 +245,7 @@
                 <input type="hidden" name="cityName" id="cityName">
                 <input type="hidden" name="districtName" id="districtName">
                 <input type="hidden" name="wardName" id="wardName">
-                <input type="hidden" name="shippingFeeVal" id="shippingFeeVal" value="0">
+                <input type="hidden" name="shippingFeeVal" id="shippingFeeVal" value="">
 
                 <textarea name="note" placeholder="Ghi chú cho người giao hàng (nếu có)"></textarea>
             </div>
@@ -296,9 +296,24 @@
                                 Phân loại: ${not empty item.color ? item.color : 'Mặc định'} - ${item.size}
                             </p>
                             <div class="price">
-                                <span class="current-price">
-                                    <fmt:formatNumber value="${item.totalPrice}" pattern="#,###"/>₫
-                                </span>
+                                <c:choose>
+                                    <c:when test="${item.discountPercent > 0}">
+                                        <span class="current-price">
+                                            <fmt:formatNumber value="${item.getFinalPrice()}" pattern="#,###"/>₫
+                                        </span>
+                                        <span class="old-price">
+                                            <fmt:formatNumber value="${item.price}" pattern="#,###"/>₫
+                                        </span>
+                                        <span class="discount">
+                                            (-<fmt:formatNumber value="${item.discountPercent}" pattern="#"/>%)
+                                        </span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <span class="current-price">
+                                            <fmt:formatNumber value="${item.price}" pattern="#,###"/>₫
+                                        </span>
+                                    </c:otherwise>
+                                </c:choose>
                             </div>
                         </div>
                     </div>
@@ -351,7 +366,6 @@
 
         const currentGrandTotal = ${grandTotal != null ? grandTotal : 0};
         const totalWeight = ${totalWeight != null ? totalWeight : 1000};
-
         const SHOP_PROVINCE = "Hồ Chí Minh";
         const SHOP_DISTRICT = "Quận 9";
 
@@ -370,6 +384,10 @@
 
         function formatMoney(n) {
             return Number(n || 0).toLocaleString("vi-VN") + "₫";
+        }
+
+        function roundUpToThousand(n) {
+            return Math.ceil(Number(n || 0) / 1000) * 1000;
         }
 
         function normalizeProvince(name) {
@@ -421,6 +439,7 @@
             standardShipPrice.innerText = "—";
             expressShipPrice.innerText = "—";
             expressShipLabel.style.display = "none";
+            document.getElementById("shippingFeeVal").value = "";
             document.querySelector('input[value="tiêu chuẩn"]').checked = true;
             document.getElementById("shippingMethodDisplay").innerText = "TIÊU CHUẨN";
         }
@@ -429,15 +448,20 @@
             standardShipPrice.innerText = "Đang tính...";
             expressShipPrice.innerText = "Đang tính...";
             shippingFeeDisplay.innerText = "Đang tính...";
+            document.getElementById("shippingFeeVal").value = "";
         }
 
         async function tinhPhiGHTK(provinceTo, districtTo, transport) {
             try {
+                const addressDetail = document.getElementById("addressDetail").value.trim();
+                const wardName = document.getElementById("wardName").value.trim();
                 const params = new URLSearchParams({
                     pick_province: normalizeProvince(SHOP_PROVINCE),
                     pick_district: normalizeDistrict(SHOP_DISTRICT),
                     province: normalizeProvince(provinceTo),
                     district: normalizeDistrict(districtTo),
+                    ward: wardName,
+                    address: addressDetail,
                     weight: totalWeight,
                     value: Math.round(currentGrandTotal),
                     transport: transport
@@ -475,12 +499,12 @@
             cachedFeeExpress = null;
 
             const normalizedProvince = normalizeProvince(provinceTo);
-            const isHCM = normalizedProvince.includes("Hồ Chí Minh");
+            const canUseExpress = normalizedProvince.includes("Hồ Chí Minh");
 
             let feeRoad = null;
             let feeFly = null;
 
-            if (isHCM) {
+            if (canUseExpress) {
                 [feeRoad, feeFly] = await Promise.all([
                     tinhPhiGHTK(provinceTo, districtTo, "road"),
                     tinhPhiGHTK(provinceTo, districtTo, "fly")
@@ -502,19 +526,20 @@
             cachedFeeStandard = feeRoad;
             standardShipPrice.innerText = formatMoney(feeRoad);
 
-            if (isHCM) {
-                if (feeFly != null && feeFly > feeRoad) {
-                    cachedFeeExpress = feeFly;
-                    expressShipPrice.innerText = formatMoney(feeFly);
+            if (canUseExpress) {
+                if (feeFly != null) {
+                    cachedFeeExpress = Math.max(feeFly, roundUpToThousand(feeRoad * 1.2));
+                    expressShipPrice.innerText = formatMoney(cachedFeeExpress);
                 } else {
-                    cachedFeeExpress = Math.round(feeRoad * 1.25);
-                    expressShipPrice.innerText = formatMoney(cachedFeeExpress) + " (ước tính)";
+                    cachedFeeExpress = null;
+                    expressShipPrice.innerText = "Không hỗ trợ";
                 }
-                expressShipLabel.style.display = "flex";
+                expressShipLabel.style.display = cachedFeeExpress != null ? "flex" : "none";
             } else {
                 expressShipLabel.style.display = "none";
                 document.querySelector('input[value="tiêu chuẩn"]').checked = true;
                 document.getElementById("shippingMethodDisplay").innerText = "TIÊU CHUẨN";
+                expressShipPrice.innerText = "Chỉ áp dụng TP.HCM";
             }
 
             apDungPhiHienTai();
@@ -589,7 +614,22 @@
 
             wardSelect.onchange = function () {
                 document.getElementById("wardName").value = this.options[this.selectedIndex].text;
+                const provinceName = document.getElementById("cityName").value;
+                const districtName = document.getElementById("districtName").value;
+                if (provinceName && districtName) {
+                    tinhTatCaPhiShip(provinceName, districtName);
+                }
             };
+
+            document.getElementById("addressDetail").addEventListener("change", function () {
+                const provinceName = document.getElementById("cityName").value;
+                const districtName = document.getElementById("districtName").value;
+                if (provinceName && districtName && this.value.trim()) {
+                    tinhTatCaPhiShip(provinceName, districtName);
+                } else {
+                    resetShippingState();
+                }
+            });
 
             document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
                 radio.addEventListener("change", function () {
@@ -677,7 +717,7 @@
         }
 
         if (shippingFee.value === "" || Number(shippingFee.value) < 0) {
-            alert("Vui lòng chọn địa chỉ để tính phí vận chuyển");
+            alert("Vui lòng chọn địa chỉ và chờ hệ thống tính phí vận chuyển");
             isValid = false;
         }
 
@@ -698,7 +738,6 @@
         document.querySelectorAll(".error").forEach(el => el.classList.remove("error"));
         document.querySelectorAll(".error-message").forEach(el => el.innerText = "");
     }
-
 
 </script>
 
