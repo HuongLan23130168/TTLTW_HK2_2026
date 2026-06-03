@@ -138,6 +138,19 @@
                                     <i class="fa fa-truck"></i> Xác nhận & Giao vận chuyển
                                 </button>
                             </form>
+                            <form action="${pageContext.request.contextPath}/admin/updateOrderStatus" method="post" style="margin-top: 12px;">
+                                <input type="hidden" name="orderId" value="${order.id}">
+                                <input type="hidden" name="currentStatus" value="${order.status}">
+                                <input type="hidden" name="action" value="cancel">
+                                <textarea name="cancelReason" rows="3" required
+                                          placeholder="Lý do hủy đơn gửi cho khách hàng"
+                                          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 10px; font-family: inherit;"></textarea>
+                                <button type="submit" class="btn-action btn-cancel"
+                                        style="background-color: #e74c3c; color: white; padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; width: 100%;"
+                                        onclick="return confirm('Hủy đơn hàng này và gửi lý do cho khách hàng?');">
+                                    <i class="fa fa-times"></i> Hủy đơn
+                                </button>
+                            </form>
                         </c:when>
 
                         <c:when test="${order.status == 'Đã giao hàng - Hoàn thành'}">

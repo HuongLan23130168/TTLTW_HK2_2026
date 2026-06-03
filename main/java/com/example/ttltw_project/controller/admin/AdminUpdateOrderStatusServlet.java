@@ -22,6 +22,7 @@ public class AdminUpdateOrderStatusServlet extends HttpServlet {
         try {
             String orderIdStr = request.getParameter("orderId");
             String currentStatus = request.getParameter("currentStatus");
+            String action = request.getParameter("action");
 
             if (orderIdStr == null || currentStatus == null) {
                 response.sendRedirect(request.getContextPath() + "/admin/orders?error=missing_info");
@@ -36,7 +37,32 @@ public class AdminUpdateOrderStatusServlet extends HttpServlet {
                 return;
             }
 
-            if (currentStatus.equalsIgnoreCase("Chờ xử lý")) {
+            boolean isPending = currentStatus.equalsIgnoreCase("Chờ xử lý");
+
+            if ("cancel".equalsIgnoreCase(action)) {
+                if (!isPending) {
+                    response.sendRedirect(request.getContextPath() + "/admin/viewOrder?orderId=" + orderId + "&error=cannot_cancel");
+                    return;
+                }
+
+                String cancelReason = request.getParameter("cancelReason");
+                if (cancelReason == null || cancelReason.trim().isEmpty()) {
+                    response.sendRedirect(request.getContextPath() + "/admin/viewOrder?orderId=" + orderId + "&error=missing_cancel_reason");
+                    return;
+                }
+
+                boolean success = orderDAO.cancelOrder(orderId, "Admin hủy đơn: " + cancelReason.trim());
+                if (success) {
+                    NotificationService notificationService = new NotificationService();
+                    notificationService.notifyOrderUpdate(order, "Đã hủy");
+                    response.sendRedirect(request.getContextPath() + "/admin/viewOrder?orderId=" + orderId + "&msg=cancelled");
+                } else {
+                    response.sendRedirect(request.getContextPath() + "/admin/viewOrder?orderId=" + orderId + "&error=cancel_failed");
+                }
+                return;
+            }
+
+            if (isPending) {
                 String newStatus = "Đã xác nhận - Giao vận chuyển";
                 String newShippingStatus = "Đã giao cho đơn vị vận chuyển";
                 String note = "Admin đã xác nhận đơn hàng";
