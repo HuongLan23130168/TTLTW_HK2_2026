@@ -12,26 +12,86 @@ public class AdminCustomerDAO {
 
     public List<User> getAllCustomers(String sortBy, String search) {
         return jdbi.withHandle(handle -> {
-            StringBuilder sql = new StringBuilder("SELECT id, full_name AS fullName, birth, gender, email, phone, address, role, created_at FROM users");
+            StringBuilder sql = new StringBuilder("""
+                    SELECT
+                        u.id,
+                        u.full_name AS fullName,
+                        u.birth,
+                        u.gender,
+                        u.email,
+                        COALESCE(
+                            NULLIF(TRIM(u.phone), ''),
+                            (
+                                SELECT o.recipient_phone
+                                FROM orders o
+                                WHERE o.user_id = u.id
+                                  AND o.recipient_phone IS NOT NULL
+                                  AND TRIM(o.recipient_phone) <> ''
+                                ORDER BY o.order_date DESC
+                                LIMIT 1
+                            )
+                        ) AS phone,
+                        COALESCE(
+                            NULLIF(TRIM(u.address), ''),
+                            (
+                                SELECT a.address
+                                FROM addresses a
+                                WHERE a.user_id = u.id
+                                  AND a.address IS NOT NULL
+                                  AND TRIM(a.address) <> ''
+                                ORDER BY a.is_default DESC, a.id DESC
+                                LIMIT 1
+                            ),
+                            (
+                                SELECT o.shipping_address
+                                FROM orders o
+                                WHERE o.user_id = u.id
+                                  AND o.shipping_address IS NOT NULL
+                                  AND TRIM(o.shipping_address) <> ''
+                                ORDER BY o.order_date DESC
+                                LIMIT 1
+                            )
+                        ) AS address,
+                        u.role,
+                        u.created_at
+                    FROM users u
+                    """);
 
             if (search != null && !search.trim().isEmpty()) {
-                sql.append(" WHERE full_name LIKE :search OR email LIKE :search");
+                sql.append("""
+                         WHERE u.full_name LIKE :search
+                            OR u.email LIKE :search
+                            OR u.phone LIKE :search
+                            OR u.address LIKE :search
+                            OR EXISTS (
+                                SELECT 1
+                                FROM orders so
+                                WHERE so.user_id = u.id
+                                  AND (so.recipient_phone LIKE :search OR so.shipping_address LIKE :search)
+                            )
+                            OR EXISTS (
+                                SELECT 1
+                                FROM addresses sa
+                                WHERE sa.user_id = u.id
+                                  AND sa.address LIKE :search
+                            )
+                        """);
             }
 
             String orderBy;
             switch (sortBy) {
                 case "oldest":
-                    orderBy = " ORDER BY created_at ASC";
+                    orderBy = " ORDER BY u.created_at ASC";
                     break;
                 case "name_asc":
-                    orderBy = " ORDER BY full_name ASC";
+                    orderBy = " ORDER BY u.full_name ASC";
                     break;
                 case "name_desc":
-                    orderBy = " ORDER BY full_name DESC";
+                    orderBy = " ORDER BY u.full_name DESC";
                     break;
                 case "newest":
                 default:
-                    orderBy = " ORDER BY created_at DESC";
+                    orderBy = " ORDER BY u.created_at DESC";
                     break;
             }
             sql.append(orderBy);
@@ -48,7 +108,51 @@ public class AdminCustomerDAO {
 
     public User getCustomerById(int id) {
         return jdbi.withHandle(handle ->
-                handle.createQuery("SELECT id, full_name AS fullName, birth, gender, email, phone, address, role, created_at FROM users WHERE id = :id")
+                handle.createQuery("""
+                        SELECT
+                            u.id,
+                            u.full_name AS fullName,
+                            u.birth,
+                            u.gender,
+                            u.email,
+                            COALESCE(
+                                NULLIF(TRIM(u.phone), ''),
+                                (
+                                    SELECT o.recipient_phone
+                                    FROM orders o
+                                    WHERE o.user_id = u.id
+                                      AND o.recipient_phone IS NOT NULL
+                                      AND TRIM(o.recipient_phone) <> ''
+                                    ORDER BY o.order_date DESC
+                                    LIMIT 1
+                                )
+                            ) AS phone,
+                            COALESCE(
+                                NULLIF(TRIM(u.address), ''),
+                                (
+                                    SELECT a.address
+                                    FROM addresses a
+                                    WHERE a.user_id = u.id
+                                      AND a.address IS NOT NULL
+                                      AND TRIM(a.address) <> ''
+                                    ORDER BY a.is_default DESC, a.id DESC
+                                    LIMIT 1
+                                ),
+                                (
+                                    SELECT o.shipping_address
+                                    FROM orders o
+                                    WHERE o.user_id = u.id
+                                      AND o.shipping_address IS NOT NULL
+                                      AND TRIM(o.shipping_address) <> ''
+                                    ORDER BY o.order_date DESC
+                                    LIMIT 1
+                                )
+                            ) AS address,
+                            u.role,
+                            u.created_at
+                        FROM users u
+                        WHERE u.id = :id
+                        """)
                         .bind("id", id)
                         .mapToBean(User.class)
                         .findFirst()
@@ -64,4 +168,3 @@ public class AdminCustomerDAO {
         );
     }
 }
-
