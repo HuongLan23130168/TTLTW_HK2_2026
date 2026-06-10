@@ -1,7 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ include file="/common/taglibs.jsp" %>
+
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -13,24 +12,23 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/css/style.css"/>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/css/customers.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="${pageContext.request.contextPath}/favicon.ico">
+
 
 
     <style>
-        /* CSS cho thanh tìm kiếm (Giống bên Orders) */
         .filter-container form {
             display: flex;
             gap: 10px;
             align-items: center;
         }
 
-        /* Wrapper chứa icon và input */
         .search-wrapper {
             position: relative;
             display: flex;
             align-items: center;
         }
 
-        /* Icon kính lúp nằm đè lên input */
         .search-icon {
             position: absolute;
             left: 10px;
@@ -39,9 +37,8 @@
             pointer-events: none;
         }
 
-        /* Input nhập liệu */
         .search-customer-input {
-            padding: 8px 12px 8px 35px; /* Padding trái 35px để chừa chỗ cho icon */
+            padding: 8px 12px 8px 35px;
             border: 1px solid #ccc;
             border-radius: 8px;
             font-size: 14px;
@@ -54,7 +51,6 @@
             border-color: #bca77d;
         }
 
-        /* Nút tìm kiếm */
         .btn-search {
             background-color: #bca77d;
             color: white;
@@ -74,7 +70,6 @@
             background-color: #a68a63;
         }
 
-        /* Select box sort */
         .filter-select {
             padding: 8px 12px;
             border: 1px solid #ccc;
@@ -91,7 +86,6 @@
 <jsp:include page="/admin/header.jsp"/>
 <jsp:include page="/admin/sidebar.jsp"/>
 
-<!-- === CUSTOMERS === -->
 <main class="main-content">
     <div class="customers-header">
         <h1>Danh sách khách hàng</h1>
@@ -147,7 +141,7 @@
 </main>
 
 
-<script src="${pageContext.request.contextPath}/admin/js/main.js"></script>
+<script src="${pageContext.request.contextPath}/admin/js/contact.js"></script>
 </body>
 
 </html>
