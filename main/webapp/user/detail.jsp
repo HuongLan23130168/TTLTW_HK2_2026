@@ -1,3 +1,4 @@
+
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
@@ -11,6 +12,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/header.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/footer.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/detail.css">
+    <link rel="icon" type="image/x-icon" href="path/to/your/favicon.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -152,15 +154,35 @@
             <button class="slide-btn prev" onclick="scrollSlider(-1)"><i class="fa fa-chevron-left"></i></button>
             <div class="slider" id="productSlider">
                 <c:forEach var="rel" items="${relatedProducts}">
-                    <a href="${pageContext.request.contextPath}/detail-product?id=${rel.id}" class="product">
-                        <img src="${rel.image_url}" alt="${rel.product_name}" loading="lazy">
-                        <h4>${rel.product_name}</h4>
-                        <p class="price">
-                            <fmt:formatNumber value="${rel.price}"
-                                              type="number"
-                                              groupingUsed="true"
-                                              maxFractionDigits="0"/>₫
-                        </p>
+                    <a href="${pageContext.request.contextPath}/detail-product?id=${rel.id}" class="product" style="position: relative; display: block;">
+
+                        <c:if test="${not empty rel.discount}">
+                            <span style="position: absolute; top: 10px; left: 10px; background-color: #ff6b6b; color: #fff; font-size: 13px; font-weight: 700; padding: 4px 8px; border-radius: 6px 0 6px 0; z-index: 10;">
+                                -${rel.discount.discount_percent}%
+                            </span>
+                        </c:if>
+
+                        <img src="${empty rel.image_url ? 'path/to/default.jpg' : rel.image_url}" alt="${rel.product_name}" loading="lazy" style="width: 100%; border-radius: 10px; margin-bottom: 10px; object-fit: cover;">
+
+                        <h4 style="margin-bottom: 5px;">${rel.product_name}</h4>
+
+                        <div class="price">
+                            <c:choose>
+                                <c:when test="${not empty rel.discount}">
+                                    <span style="color: #c92127; font-weight: bold; font-size: 16px;">
+                                        <fmt:formatNumber value="${rel.price * (1 - rel.discount.discount_percent / 100)}" type="number" groupingUsed="true" maxFractionDigits="0"/>₫
+                                    </span>
+                                    <span style="text-decoration: line-through; color: #999; font-size: 13px; margin-left: 5px;">
+                                        <fmt:formatNumber value="${rel.price}" type="number" groupingUsed="true" maxFractionDigits="0"/>₫
+                                    </span>
+                                </c:when>
+                                <c:otherwise>
+                                    <span style="color: #c92127; font-weight: bold; font-size: 16px;">
+                                        <fmt:formatNumber value="${rel.price}" type="number" groupingUsed="true" maxFractionDigits="0"/>₫
+                                    </span>
+                                </c:otherwise>
+                            </c:choose>
+                        </div>
                     </a>
                 </c:forEach>
             </div>
@@ -182,12 +204,8 @@
             "style": "${v.style}",
             "origin": "${v.origin}",
             "price": ${v.price},
-            "finalPrice": ${product.discount != null && product.discount.isActive()
-            ? Math.round(v.price * (1 - product.discount.discount_percent.doubleValue() / 100))
-            : v.price},
-            "discountPercent": ${product.discount != null && product.discount.isActive()
-            ? product.discount.discount_percent
-            : 0},
+            "finalPrice": Math.round(${v.price} * (1 - ${not empty product.discount ? product.discount.discount_percent : 0} / 100)),
+            "discountPercent": ${not empty product.discount ? product.discount.discount_percent : 0},
             "image_url": "${v.image_url}",
             "stock": ${v.stock}
         }${!loop.last ? ',' : ''}
@@ -201,8 +219,9 @@
     }
 </script>
 
-
 <jsp:include page="/user/footer.jsp"/>
 <script src="${pageContext.request.contextPath}/user/js/detail.js"></script>
 </body>
 </html>
+
+```
