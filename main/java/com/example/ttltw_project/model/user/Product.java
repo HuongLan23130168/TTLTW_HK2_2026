@@ -5,7 +5,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Product implements Serializable { // Giữ Serializable để dùng được với Session/Cart
+public class Product implements Serializable { 
     private static final long serialVersionUID = 1L;
 
     private int id;
