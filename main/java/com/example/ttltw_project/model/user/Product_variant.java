@@ -105,7 +105,6 @@ public class Product_variant {
         this.origin = origin;
     }
 
-    // Phần trăm giảm giá
     public int getDiscountPercent() {
         if (price_old > price && price_old > 0) {
             return (int) Math.round(((price_old - price) / price_old) * 100);
