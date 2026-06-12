@@ -28,8 +28,7 @@ public class Product implements Serializable { // Giữ Serializable để dùng
 
     private List<Product_variant> variants = new ArrayList<>();
     private List<Product_image> images = new ArrayList<>();
-    private Discount discount;    // Dùng Object Discount để quản lý chuyên sâu
-
+    private Discount discount;    
     public Product() {
     }
 
