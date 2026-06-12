@@ -5,7 +5,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Product implements Serializable { // Giữ Serializable để dùng được với Session/Cart
+public class Product implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private int id;
@@ -28,7 +28,9 @@ public class Product implements Serializable { // Giữ Serializable để dùng
 
     private List<Product_variant> variants = new ArrayList<>();
     private List<Product_image> images = new ArrayList<>();
-    private Discount discount;    // Dùng Object Discount để quản lý chuyên sâu
+    private Discount discount;
+
+    private boolean is_active = true;
 
     public Product() {
     }
@@ -52,6 +54,7 @@ public class Product implements Serializable { // Giữ Serializable để dùng
         this.variants = variants;
         this.images = images;
         this.discount = discount;
+
     }
 
     public double getFinalPrice() {
@@ -61,7 +64,6 @@ public class Product implements Serializable { // Giữ Serializable để dùng
         return this.price;
     }
 
-    // Lấy phần trăm giảm giá để hiển thị lên nhãn (Label)
     public int getDiscountDisplay() {
         if (discount != null && discount.isActive()) {
             return discount.getDiscount_percent();
@@ -230,5 +232,12 @@ public class Product implements Serializable { // Giữ Serializable để dùng
 
     public int getDiscountPercent() {
         return getDiscountDisplay();
+    }
+    public boolean getIs_active() {
+        return is_active;
+    }
+
+    public void setIs_active(boolean is_active) {
+        this.is_active = is_active;
     }
 }
