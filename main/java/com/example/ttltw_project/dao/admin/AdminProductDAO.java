@@ -17,16 +17,38 @@ public class AdminProductDAO {
         this.jdbi = DBDAO.get();
     }
 
-    // đếm sp để phân trang
     public int getTotalProductCount() {
-        return jdbi.withHandle(h -> h.createQuery("SELECT COUNT(*) FROM products WHERE is_active = 1").mapTo(Integer.class).one());
+        return jdbi.withHandle(h -> h.createQuery("SELECT COUNT(*) FROM products").mapTo(Integer.class).one());
+    }
+
+    public int getTotalProductCount(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return getTotalProductCount();
+        }
+        String searchPattern = "%" + keyword.trim() + "%";
+        return jdbi.withHandle(h -> h.createQuery("SELECT COUNT(*) FROM products WHERE product_name LIKE :keyword OR product_code LIKE :keyword")
+                .bind("keyword", searchPattern)
+                .mapTo(Integer.class)
+                .one());
     }
 
     public List<Product> getProducts(int page, int pageSize) {
+        return getProducts(null, page, pageSize); // Gọi sang hàm mới cho gọn code
+    }
+
+    public List<Product> getProducts(String keyword, int page, int pageSize) {
         int offset = (page - 1) * pageSize;
+
+        String condition = "";
+        String searchPattern = "";
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            condition = "WHERE p.product_name LIKE :keyword OR p.product_code LIKE :keyword";
+            searchPattern = "%" + keyword.trim() + "%";
+        }
+
         String sql = """
                     SELECT
-                        p.id, p.product_name, p.product_code, t.type_name,
+                        p.id, p.product_name, p.product_code, p.is_active, t.type_name,
                         (SELECT image_url FROM product_images WHERE product_id = p.id ORDER BY id LIMIT 1) AS image_url,
                         (SELECT GROUP_CONCAT(c.category_name SEPARATOR ', ') FROM categories c WHERE FIND_IN_SET(c.id, p.category_id) > 0) AS category_name,
                         (SELECT COALESCE(SUM(inv.stock_quantity), 0) FROM inventories inv JOIN product_variants pv ON inv.variant_id = pv.id WHERE pv.product_id = p.id) AS stock,
@@ -46,42 +68,54 @@ public class AdminProductDAO {
                         ), 0) AS discountPercent
                     FROM products p
                     LEFT JOIN product_types t ON p.product_type_id = t.id
-                    WHERE p.is_active = 1
+                    """ + condition + """
                     ORDER BY p.id DESC
                     LIMIT :limit OFFSET :offset
                 """;
-        return jdbi.withHandle(h -> h.createQuery(sql)
-                .bind("limit", pageSize)
-                .bind("offset", offset)
-                .map((rs, ctx) -> {
-                    Product p = new Product();
-                    p.setId(rs.getInt("id"));
-                    p.setProduct_name(rs.getString("product_name"));
-                    p.setProduct_code(rs.getString("product_code"));
-                    p.setType_name(rs.getString("type_name"));
-                    p.setCategory_name(rs.getString("category_name"));
-                    p.setStock(rs.getInt("stock"));
-                    p.setImage_url(rs.getString("image_url"));
-                    p.setPrice(rs.getDouble("original_price"));
 
-                    int discountPercent = rs.getInt("discountPercent");
-                    if (discountPercent > 0) {
-                        Discount d = new Discount();
-                        d.setDiscount_percent(discountPercent);
-                        d.setStart_date(new java.sql.Timestamp(System.currentTimeMillis() - 86400000));
-                        d.setEnd_date(new java.sql.Timestamp(System.currentTimeMillis() + 86400000));
-                        p.setDiscount(d);
-                    }
-                    return p;
-                }).list());
+        final String finalSearchPattern = searchPattern;
+
+        return jdbi.withHandle(h -> {
+            var query = h.createQuery(sql)
+                    .bind("limit", pageSize)
+                    .bind("offset", offset);
+
+            // Nếu có từ khóa thì bind biến keyword vào query
+            if (!finalSearchPattern.isEmpty()) {
+                query.bind("keyword", finalSearchPattern);
+            }
+
+            return query.map((rs, ctx) -> {
+                Product p = new Product();
+                p.setId(rs.getInt("id"));
+                p.setProduct_name(rs.getString("product_name"));
+                p.setProduct_code(rs.getString("product_code"));
+                p.setType_name(rs.getString("type_name"));
+                p.setCategory_name(rs.getString("category_name"));
+                p.setStock(rs.getInt("stock"));
+                p.setImage_url(rs.getString("image_url"));
+                p.setPrice(rs.getDouble("original_price"));
+                p.setIs_active(rs.getBoolean("is_active"));
+
+                int discountPercent = rs.getInt("discountPercent");
+                if (discountPercent > 0) {
+                    Discount d = new Discount();
+                    d.setDiscount_percent(discountPercent);
+                    d.setStart_date(new java.sql.Timestamp(System.currentTimeMillis() - 86400000));
+                    d.setEnd_date(new java.sql.Timestamp(System.currentTimeMillis() + 86400000));
+                    p.setDiscount(d);
+                }
+                return p;
+            }).list();
+        });
     }
 
     public List<Product> getAllProductsSimple() {
-        return jdbi.withHandle(h -> h.createQuery("SELECT id, product_name FROM products WHERE is_active = 1 ORDER BY product_name").mapToBean(Product.class).list());
+        return jdbi.withHandle(h -> h.createQuery("SELECT id, product_name FROM products ORDER BY product_name").mapToBean(Product.class).list());
     }
 
     public Product getProductById(int id) {
-        Product product = jdbi.withHandle(h -> h.createQuery("SELECT * FROM products WHERE id = :id AND is_active = 1").bind("id", id).mapToBean(Product.class).findFirst().orElse(null));
+        Product product = jdbi.withHandle(h -> h.createQuery("SELECT * FROM products WHERE id = :id").bind("id", id).mapToBean(Product.class).findFirst().orElse(null));
         if (product != null) {
             String imageUrl = jdbi.withHandle(h -> h.createQuery("SELECT image_url FROM product_images WHERE product_id = :id ORDER BY id LIMIT 1").bind("id", id).mapTo(String.class).findFirst().orElse(null));
             product.setImage_url(imageUrl);
@@ -103,7 +137,6 @@ public class AdminProductDAO {
     }
 
 
-//   thêm mới sản phẩm
     public boolean insertProductFull(Product p, List<Product_variant> variants, List<String> otherImages) {
         try {
             return jdbi.inTransaction(h -> {
@@ -131,10 +164,10 @@ public class AdminProductDAO {
                 if (variants != null) {
                     for (Product_variant v : variants) {
                         int generatedVariantId = h.createUpdate("""
-                    INSERT INTO product_variants 
-                    (product_id, variant_code, color, size, material, price, image_url) 
-                    VALUES (:pid, :variant_code, :color, :size, :material, :price, :img)
-                """)
+                                            INSERT INTO product_variants 
+                                            (product_id, variant_code, color, size, material, price, image_url) 
+                                            VALUES (:pid, :variant_code, :color, :size, :material, :price, :img)
+                                        """)
                                 .bind("pid", productId)
                                 .bindBean(v)
                                 .bind("img", p.getImage_url())
@@ -155,7 +188,6 @@ public class AdminProductDAO {
             return false;
         }
     }
-
 
 
     public boolean updateProductFull(Product p, List<Product_variant> variants, List<String> otherImages) {
@@ -218,6 +250,16 @@ public class AdminProductDAO {
         }
     }
 
+    public void restoreProduct(int productId) {
+        try {
+            jdbi.useHandle(h -> h.createUpdate("UPDATE products SET is_active = 1 WHERE id = :id")
+                    .bind("id", productId)
+                    .execute());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void hardDeleteProduct(int productId) {
         try {
             jdbi.useTransaction(h -> {
@@ -258,4 +300,3 @@ public class AdminProductDAO {
         }
     }
 }
-

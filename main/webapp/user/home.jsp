@@ -13,9 +13,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
           crossorigin="anonymous" referrerpolicy="no-referrer"/>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/frontend/css/style.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/frontend/css/header.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/frontend/css/footer.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/style.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/header.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/footer.css">
     <link rel="icon" href="data:,">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
@@ -144,92 +144,98 @@
     </section>
 
 
-    <%--    SECTION 4--%>
-    <section class="new-products" id="newProducts">
-        <h2 class="section-title">Sản phẩm mới</h2>
-        <div class="product-grid">
-            <c:forEach items="${newProducts}" var="p">
-                <a href="${pageContext.request.contextPath}/detail-product?id=${p.id}" class="product-card">
-                    <div class="badge-new">NEW</div>
+        <%--    SECTION 4--%>
+        <section class="new-products" id="newProducts">
+            <h2 class="section-title">Sản phẩm mới</h2>
+            <div class="product-grid">
+                <c:forEach items="${newProducts}" var="p">
+                    <a href="${pageContext.request.contextPath}/detail-product?id=${p.id}" class="product-card">
+                        <div class="badge-new">NEW</div>
 
-                    <div class="product-img">
-                        <img src="${empty p.image_url ? 'path/to/default-image.jpg' : p.image_url}"
-                             alt="${p.product_name}">
-                        <div class="overlay"><span>Xem thêm</span></div>
-                    </div>
+                        <div class="product-img">
+                            <img src="${empty p.image_url ? 'path/to/default-image.jpg' : p.image_url}"
+                                 alt="${p.product_name}">
+                            <div class="overlay"><span>Xem thêm</span></div>
+                        </div>
 
-                    <div class="product-info">
-                        <h3>${p.product_name}</h3>
+                        <div class="product-info">
+                            <h3>${p.product_name}</h3>
 
-                        <p class="product-desc">
-                                ${fn:length(p.description) > 60 ? fn:substring(p.description, 0, 60).concat('...') : p.description}
-                        </p>
+                            <p class="product-desc">
+                                    ${fn:length(p.description) > 60 ? fn:substring(p.description, 0, 60).concat('...') : p.description}
+                            </p>
 
-                        <p class="price">
-                            <c:choose>
-                                <c:when test="${p.discount != null && p.discount.active}">
-                                <span class="price-new">
-                                    <fmt:formatNumber value="${p.finalPrice}" type="number"/>₫
-                                </span>
-                                    <span class="price-old">
-                                    <fmt:formatNumber value="${p.price}" type="number"/>₫
-                                </span>
-                                </c:when>
-                                <c:otherwise>
-                                <span class="price-normal">
-                                    <fmt:formatNumber value="${p.price}" type="number"/>₫
-                                </span>
-                                </c:otherwise>
-                            </c:choose>
-                        </p>
-                    </div>
-                </a>
-            </c:forEach>
-        </div>
-    </section>
+                            <div class="price-cart">
+                                <div class="price-box">
+                                    <c:choose>
+                                        <c:when test="${not empty p.discount && p.discount.isActive()}">
+                                        <span class="price-new" style="color: #e74c3c; font-weight: bold; margin-right: 8px;">
+                                            <fmt:formatNumber value="${p.getFinalPrice()}" type="number" groupingUsed="true" maxFractionDigits="0"/>₫
+                                        </span>
+                                            <span class="price-old" style="text-decoration: line-through; color: #999; font-size: 0.9em;">
+                                            <fmt:formatNumber value="${p.price}" type="number" groupingUsed="true" maxFractionDigits="0"/>₫
+                                        </span>
+                                        </c:when>
 
-    <%--    SECTION 5--%>
-    <section class="new-products" id="hotProducts">
-        <h2 class="section-title">Sản phẩm bán chạy</h2>
-        <div class="product-grid">
-            <c:forEach items="${hotProducts}" var="p">
-                <a href="${pageContext.request.contextPath}/detail-product?id=${p.id}" class="product-card">
-                    <div class="badge-new" style="background: #e74c3c;">HOT</div>
+                                        <c:otherwise>
+                                        <span class="price-normal">
+                                            <fmt:formatNumber value="${p.price}" type="number" groupingUsed="true" maxFractionDigits="0"/>₫
+                                        </span>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </c:forEach>
+            </div>
+        </section>
 
-                    <div class="product-img">
-                        <img src="${empty p.image_url ? 'https://via.placeholder.com/300x400?text=Noble+Loft' : p.image_url}"
-                             alt="${p.product_name}">
-                        <div class="overlay"><span>Xem thêm</span></div>
-                    </div>
+        <%--    SECTION 5--%>
+        <section class="new-products" id="hotProducts">
+            <h2 class="section-title">Sản phẩm bán chạy</h2>
+            <div class="product-grid">
+                <c:forEach items="${hotProducts}" var="p">
+                    <a href="${pageContext.request.contextPath}/detail-product?id=${p.id}" class="product-card">
+                        <div class="badge-new" style="background: #e74c3c;">HOT</div>
 
-                    <div class="product-info">
-                        <h3>${p.product_name}</h3>
-                        <p class="product-desc">
-                                ${fn:length(p.description) > 60 ? fn:substring(p.description, 0, 60).concat('...') : p.description}
-                        </p>
+                        <div class="product-img">
+                            <img src="${empty p.image_url ? 'https://via.placeholder.com/300x400?text=Noble+Loft' : p.image_url}"
+                                 alt="${p.product_name}">
+                            <div class="overlay"><span>Xem thêm</span></div>
+                        </div>
 
-                        <p class="price">
-                            <c:choose>
-                                <c:when test="${p.discount != null && p.discount.active}">
-                                <span class="price-new">
-                                    <fmt:formatNumber value="${p.finalPrice}" type="number"/>₫
-                                </span>
-                                    <span class="price-old">
-                                    <fmt:formatNumber value="${p.price}" type="number"/>₫
-                                </span>
-                                </c:when>
-                                <c:otherwise>
-                                <span class="price-normal">
-                                    <fmt:formatNumber value="${p.price}" type="number"/>₫
-                                </span>
-                                </c:otherwise>
-                            </c:choose>
-                        </p>
-                    </div>
-                </a>
-            </c:forEach>
-        </div>
-    </section>
+                        <div class="product-info">
+                            <h3>${p.product_name}</h3>
+                            <p class="product-desc">
+                                    ${fn:length(p.description) > 60 ? fn:substring(p.description, 0, 60).concat('...') : p.description}
+                            </p>
+
+                            <div class="price-cart">
+                                <div class="price-box">
+                                    <c:choose>
+                                        <c:when test="${not empty p.discount && p.discount.isActive()}">
+                                        <span class="price-new" style="color: #e74c3c; font-weight: bold; margin-right: 8px;">
+                                            <fmt:formatNumber value="${p.getFinalPrice()}" type="number" groupingUsed="true" maxFractionDigits="0"/>₫
+                                        </span>
+                                            <span class="price-old" style="text-decoration: line-through; color: #999; font-size: 0.9em;">
+                                            <fmt:formatNumber value="${p.price}" type="number" groupingUsed="true" maxFractionDigits="0"/>₫
+                                        </span>
+                                        </c:when>
+
+                                        <c:otherwise>
+                                        <span class="price-normal">
+                                            <fmt:formatNumber value="${p.price}" type="number" groupingUsed="true" maxFractionDigits="0"/>₫
+                                        </span>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </c:forEach>
+            </div>
+        </section>
 </main>
 
 
@@ -252,7 +258,7 @@
     </c:if>
 </script>
 
-<script src="${pageContext.request.contextPath}/frontend/js/home.js"></script>
+<script src="${pageContext.request.contextPath}/user/js/home.js"></script>
 
 
 </body>

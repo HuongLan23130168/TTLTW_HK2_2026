@@ -1,6 +1,5 @@
 package com.example.ttltw_project.controller.admin;
 
-import com.example.ttltw_project.dao.admin.AdminCustomerDAO;
 import com.example.ttltw_project.dao.admin.OrderDAO;
 import com.example.ttltw_project.model.admin.Order;
 import com.example.ttltw_project.model.admin.OrderItem;
@@ -41,8 +40,6 @@ public class AdminViewOrderServlet extends HttpServlet {
         try {
             int orderId = Integer.parseInt(orderIdParam);
             OrderDAO orderDAO = new OrderDAO();
-            AdminCustomerDAO customerDAO = new AdminCustomerDAO();
-
             Order order = orderDAO.getOrderById(orderId);
 
             if (order == null) {
@@ -51,19 +48,9 @@ public class AdminViewOrderServlet extends HttpServlet {
                 return;
             }
 
-            // Lấy thông tin khách hàng
-            User customer = customerDAO.getCustomerById(order.getUserId());
-            if (customer != null) {
-                order.setCustomerName(customer.getFullName());
-                order.setCustomerEmail(customer.getEmail());
-                order.setCustomerPhone(customer.getPhone());
-            } else {
-                order.setCustomerName(order.getRecipientName());
-                order.setCustomerEmail("Không có email");
-                order.setCustomerPhone(order.getRecipientPhone());
-            }
-
-            // Địa chỉ giao hàng
+            // Chi tiet don hang hien thi thong tin nguoi nhan tai thoi diem dat don.
+            order.setCustomerName(order.getRecipientName());
+            order.setCustomerPhone(order.getRecipientPhone());
             order.setCustomerAddress(order.getShippingAddress());
 
             List<OrderItem> orderItems = orderDAO.getOrderItemsByOrderId(orderId);

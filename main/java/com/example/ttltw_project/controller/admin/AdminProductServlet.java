@@ -2,9 +2,11 @@ package com.example.ttltw_project.controller.admin;
 
 import com.example.ttltw_project.dao.admin.AdminProductDAO;
 import com.example.ttltw_project.model.user.Product;
-import jakarta.servlet.*;
-import jakarta.servlet.http.*;
-import jakarta.servlet.annotation.*;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.util.List;
@@ -12,8 +14,6 @@ import java.util.List;
 @WebServlet(name = "AdminProductServlet", value = "/admin/products")
 public class AdminProductServlet extends HttpServlet {
 
-
-    //phân trang mỗi trang 10 sp
     private static final int PAGE_SIZE = 10;
 
     @Override
@@ -22,6 +22,8 @@ public class AdminProductServlet extends HttpServlet {
 
         try {
             AdminProductDAO dao = new AdminProductDAO();
+
+            String keyword = request.getParameter("keyword");
 
             int page = 1;
             if (request.getParameter("page") != null) {
@@ -32,15 +34,17 @@ public class AdminProductServlet extends HttpServlet {
                 }
             }
 
-            int totalProducts = dao.getTotalProductCount();
+            int totalProducts = dao.getTotalProductCount(keyword);
             int totalPages = (int) Math.ceil((double) totalProducts / PAGE_SIZE);
 
-            // Lấy danh sách sản phẩm cho trang hiện tại
-            List<Product> list = dao.getProducts(page, PAGE_SIZE);
+
+            List<Product> list = dao.getProducts(keyword, page, PAGE_SIZE);
+
 
             request.setAttribute("products", list);
             request.setAttribute("totalPages", totalPages);
             request.setAttribute("currentPage", page);
+            request.setAttribute("keyword", keyword);
 
 
             String msg = request.getParameter("msg");

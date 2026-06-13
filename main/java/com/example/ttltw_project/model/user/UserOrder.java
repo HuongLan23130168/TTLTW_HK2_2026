@@ -19,6 +19,8 @@ public class UserOrder {
     private int otherItemsCount;
     private String returnStatus;
     private boolean returnEligible;
+    private String cancelReason;
+    private String returnAdminNote;
 
     public UserOrder() {
     }
@@ -127,5 +129,20 @@ public class UserOrder {
         this.returnEligible = returnEligible;
     }
 
+    public String getCancelReason() {
+        return cancelReason;
+    }
+
+    public void setCancelReason(String cancelReason) {
+        this.cancelReason = cancelReason;
+    }
+
+    public String getReturnAdminNote() {
+        return returnAdminNote;
+    }
+
+    public void setReturnAdminNote(String returnAdminNote) {
+        this.returnAdminNote = returnAdminNote;
+    }
 }
 

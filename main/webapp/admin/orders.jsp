@@ -161,7 +161,7 @@
             <c:forEach var="order" items="${orders}">
                 <tr>
                     <td>#${order.order_code}</td>
-                    <td>${order.recipient_name}</td>
+                    <td>${not empty order.customerName ? order.customerName : order.recipient_name}</td>
                     <td><fmt:formatDate value="${order.order_date}" pattern="dd/MM/yyyy HH:mm"/></td>
                     <td><fmt:formatNumber value="${order.total_price}" type="number"/>₫</td>
                     <td>
